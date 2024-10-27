@@ -1,9 +1,23 @@
 import cv2
 import time
 from collections import Counter
+from flask import Flask
+
+app = Flask(__name__)
 
 
+@app.route('/process_frame/<studentId>', methods=['POST'])
+def process_frame_route():
+    studentId = request.form['studentId']
+    file = request.files['frame']
+    npimg = np.fromstring(file.read(), np.uint8)
+    frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+    process_frame(frame, studentId)
+    return {"message": "Frame processed"}
 
+@app.route('/end_process/<studentId>', methods=['GET'])
+def end_process_route(studentId):
+    return end_process(studentId)
 
 student_logs = {}
 class StudentLog:
