@@ -4,38 +4,82 @@ import Webcam from 'react-webcam';
 const CaptureFrame = () => {
   const webcamRef = useRef(null);
   const [intervalId, setIntervalId] = useState(null);
+  const [frameCount, setFrameCount] = useState(0);
+  const [resultData, setResultData] = useState(null);
 
-  // Function to capture and send frame to Flask every second
+  // Helper function to get frame in matrix form
+  const getFrameMatrix = () => {
+    const canvas = document.createElement('canvas');
+    const video = webcamRef.current.video;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Get the image data (matrix) from the canvas
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const { data, width, height } = imageData;
+
+    // Convert image data to a 2D matrix of RGB values
+    const matrix = [];
+    for (let i = 0; i < height; i++) {
+      const row = [];
+      for (let j = 0; j < width; j++) {
+        const index = (i * width + j) * 4;
+        row.push([data[index], data[index + 1], data[index + 2]]);
+      }
+      matrix.push(row);
+    }
+    return matrix;
+  };
+
+  // Function to capture and send frame matrix to Flask
   const captureFrame = async () => {
     if (webcamRef.current) {
-      // Capture frame as a base64 image
-      const imageSrc = webcamRef.current.getScreenshot();
-      
-      if (imageSrc) {
-        try {
-          // Send image to Flask backend
-          await fetch('http://localhost:5000/process-frame', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ frame: imageSrc }),
-          });
-        } catch (error) {
-          console.error('Error sending frame:', error);
-        }
+      const frameMatrix = getFrameMatrix();
+      if (frameMatrix) {
+        // try {
+        //   await fetch('http://localhost:5000/process-frame', {
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({ frame: frameMatrix }),
+        //   });
+        //   setFrameCount((prevCount) => prevCount + 1);
+        // } catch (error) {
+        //   console.error('Error sending frame:', error);
+        // }
+        console.log(frameMatrix)
+        setFrameCount((precont)=>precont+1)
       }
     }
   };
 
-  // Start capturing frames every second
   useEffect(() => {
-    const id = setInterval(captureFrame, 1000);
-    setIntervalId(id);
+    if (frameCount < 15) {
+      const id = setInterval(captureFrame, 1000);
+      setIntervalId(id);
+      return () => clearInterval(id);
+    } else {
+      clearInterval(intervalId);
+      fetchEndProcess();
+    }
+  }, [frameCount]);
 
-    // Cleanup interval on unmount
-    return () => clearInterval(id);
-  }, []);
+  const fetchEndProcess = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/end_process', {
+        method: 'GET',
+      });
+      const data = await response.json();
+      setResultData(data);
+    } catch (error) {
+      console.error('Error fetching end process data:', error);
+    }
+  };
 
   return (
     <div>
@@ -46,6 +90,12 @@ const CaptureFrame = () => {
         height={240}
       />
       <p>Capturing frames every second...</p>
+      {resultData && (
+        <div>
+          <h3>Result Data:</h3>
+          <pre>{JSON.stringify(resultData, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 };

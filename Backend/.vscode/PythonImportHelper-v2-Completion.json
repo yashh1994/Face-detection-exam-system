@@ -26,11 +26,38 @@
         "documentation": {}
     },
     {
-        "label": "log_activity",
+        "label": "StudentLog",
+        "kind": 6,
+        "importPath": "model",
+        "description": "model",
+        "peekOfCode": "class StudentLog:\n    def __init__(self):\n        self.detection_result = []\n        self.eye_ratio_result = []\n        self.multi_face_times = []\n        self.no_face_start = None\n        self.no_face_total_time = 0\n        self.max_faces_detected = 0\n        self.session_start = time.time()\n    def log_activity(self, face_detected, eyes_open, face_count):",
+        "detail": "model",
+        "documentation": {}
+    },
+    {
+        "label": "end_process",
         "kind": 2,
         "importPath": "model",
         "description": "model",
-        "peekOfCode": "def log_activity(face_detected, eyes_open, face_count):\n    detection_result.append(face_detected)\n    eye_ratio_result.append(eyes_open)\n    # Update max faces detected if this frame has more\n    global max_faces_detected\n    if face_count > max_faces_detected:\n        max_faces_detected = face_count\nret, frame = cap.read()\nprint(frame)\n# Release the capture and close windows",
+        "peekOfCode": "def end_process(studentId):\n    if studentId in student_logs:\n        return student_logs[studentId].to_json()\n    else:\n        return {\"message\": \"Student log not found\"}\ndef process_frame(frame,studentId):\n    if studentId not in student_logs:\n        student_logs[studentId] = StudentLog()\n    log = student_logs[studentId]\n    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)",
+        "detail": "model",
+        "documentation": {}
+    },
+    {
+        "label": "process_frame",
+        "kind": 2,
+        "importPath": "model",
+        "description": "model",
+        "peekOfCode": "def process_frame(frame,studentId):\n    if studentId not in student_logs:\n        student_logs[studentId] = StudentLog()\n    log = student_logs[studentId]\n    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)\n    # Detect faces\n    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))\n    face_count = len(faces)\n    face_detected = face_count > 0\n    # Track no-face periods",
+        "detail": "model",
+        "documentation": {}
+    },
+    {
+        "label": "student_logs",
+        "kind": 5,
+        "importPath": "model",
+        "description": "model",
+        "peekOfCode": "student_logs = {}\nclass StudentLog:\n    def __init__(self):\n        self.detection_result = []\n        self.eye_ratio_result = []\n        self.multi_face_times = []\n        self.no_face_start = None\n        self.no_face_total_time = 0\n        self.max_faces_detected = 0\n        self.session_start = time.time()",
         "detail": "model",
         "documentation": {}
     },
@@ -39,7 +66,7 @@
         "kind": 5,
         "importPath": "model",
         "description": "model",
-        "peekOfCode": "face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')\neye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')\n# Initialize video capture\ncap = cv2.VideoCapture(0)\n# Variables for tracking\ndetection_result = []  # Log for each frame if a face is detected\neye_ratio_result = []  # Log for each frame if eyes are open or closed\nmulti_face_times = []  # Log for frames when multiple faces are detected\nno_face_start = None  # Track no-face start time\nno_face_total_time = 0  # Total time with no face detected",
+        "peekOfCode": "face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')\neye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')\n# Initialize video capture\n# cap = cv2.VideoCapture(0)\n# Variables for tracking\n# detection_result = []  # Log for each frame if a face is detected\n# eye_ratio_result = []  # Log for each frame if eyes are open or closed\n# multi_face_times = []  # Log for frames when multiple faces are detected\n# no_face_start = None  # Track no-face start time\n# no_face_total_time = 0  # Total time with no face detected",
         "detail": "model",
         "documentation": {}
     },
@@ -48,79 +75,7 @@
         "kind": 5,
         "importPath": "model",
         "description": "model",
-        "peekOfCode": "eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')\n# Initialize video capture\ncap = cv2.VideoCapture(0)\n# Variables for tracking\ndetection_result = []  # Log for each frame if a face is detected\neye_ratio_result = []  # Log for each frame if eyes are open or closed\nmulti_face_times = []  # Log for frames when multiple faces are detected\nno_face_start = None  # Track no-face start time\nno_face_total_time = 0  # Total time with no face detected\nmax_faces_detected = 0  # Maximum faces detected in a single frame",
-        "detail": "model",
-        "documentation": {}
-    },
-    {
-        "label": "cap",
-        "kind": 5,
-        "importPath": "model",
-        "description": "model",
-        "peekOfCode": "cap = cv2.VideoCapture(0)\n# Variables for tracking\ndetection_result = []  # Log for each frame if a face is detected\neye_ratio_result = []  # Log for each frame if eyes are open or closed\nmulti_face_times = []  # Log for frames when multiple faces are detected\nno_face_start = None  # Track no-face start time\nno_face_total_time = 0  # Total time with no face detected\nmax_faces_detected = 0  # Maximum faces detected in a single frame\n# Start time of the session\nsession_start = time.time()",
-        "detail": "model",
-        "documentation": {}
-    },
-    {
-        "label": "detection_result",
-        "kind": 5,
-        "importPath": "model",
-        "description": "model",
-        "peekOfCode": "detection_result = []  # Log for each frame if a face is detected\neye_ratio_result = []  # Log for each frame if eyes are open or closed\nmulti_face_times = []  # Log for frames when multiple faces are detected\nno_face_start = None  # Track no-face start time\nno_face_total_time = 0  # Total time with no face detected\nmax_faces_detected = 0  # Maximum faces detected in a single frame\n# Start time of the session\nsession_start = time.time()\n# Logging function\ndef log_activity(face_detected, eyes_open, face_count):",
-        "detail": "model",
-        "documentation": {}
-    },
-    {
-        "label": "eye_ratio_result",
-        "kind": 5,
-        "importPath": "model",
-        "description": "model",
-        "peekOfCode": "eye_ratio_result = []  # Log for each frame if eyes are open or closed\nmulti_face_times = []  # Log for frames when multiple faces are detected\nno_face_start = None  # Track no-face start time\nno_face_total_time = 0  # Total time with no face detected\nmax_faces_detected = 0  # Maximum faces detected in a single frame\n# Start time of the session\nsession_start = time.time()\n# Logging function\ndef log_activity(face_detected, eyes_open, face_count):\n    detection_result.append(face_detected)",
-        "detail": "model",
-        "documentation": {}
-    },
-    {
-        "label": "multi_face_times",
-        "kind": 5,
-        "importPath": "model",
-        "description": "model",
-        "peekOfCode": "multi_face_times = []  # Log for frames when multiple faces are detected\nno_face_start = None  # Track no-face start time\nno_face_total_time = 0  # Total time with no face detected\nmax_faces_detected = 0  # Maximum faces detected in a single frame\n# Start time of the session\nsession_start = time.time()\n# Logging function\ndef log_activity(face_detected, eyes_open, face_count):\n    detection_result.append(face_detected)\n    eye_ratio_result.append(eyes_open)",
-        "detail": "model",
-        "documentation": {}
-    },
-    {
-        "label": "no_face_start",
-        "kind": 5,
-        "importPath": "model",
-        "description": "model",
-        "peekOfCode": "no_face_start = None  # Track no-face start time\nno_face_total_time = 0  # Total time with no face detected\nmax_faces_detected = 0  # Maximum faces detected in a single frame\n# Start time of the session\nsession_start = time.time()\n# Logging function\ndef log_activity(face_detected, eyes_open, face_count):\n    detection_result.append(face_detected)\n    eye_ratio_result.append(eyes_open)\n    # Update max faces detected if this frame has more",
-        "detail": "model",
-        "documentation": {}
-    },
-    {
-        "label": "no_face_total_time",
-        "kind": 5,
-        "importPath": "model",
-        "description": "model",
-        "peekOfCode": "no_face_total_time = 0  # Total time with no face detected\nmax_faces_detected = 0  # Maximum faces detected in a single frame\n# Start time of the session\nsession_start = time.time()\n# Logging function\ndef log_activity(face_detected, eyes_open, face_count):\n    detection_result.append(face_detected)\n    eye_ratio_result.append(eyes_open)\n    # Update max faces detected if this frame has more\n    global max_faces_detected",
-        "detail": "model",
-        "documentation": {}
-    },
-    {
-        "label": "max_faces_detected",
-        "kind": 5,
-        "importPath": "model",
-        "description": "model",
-        "peekOfCode": "max_faces_detected = 0  # Maximum faces detected in a single frame\n# Start time of the session\nsession_start = time.time()\n# Logging function\ndef log_activity(face_detected, eyes_open, face_count):\n    detection_result.append(face_detected)\n    eye_ratio_result.append(eyes_open)\n    # Update max faces detected if this frame has more\n    global max_faces_detected\n    if face_count > max_faces_detected:",
-        "detail": "model",
-        "documentation": {}
-    },
-    {
-        "label": "session_start",
-        "kind": 5,
-        "importPath": "model",
-        "description": "model",
-        "peekOfCode": "session_start = time.time()\n# Logging function\ndef log_activity(face_detected, eyes_open, face_count):\n    detection_result.append(face_detected)\n    eye_ratio_result.append(eyes_open)\n    # Update max faces detected if this frame has more\n    global max_faces_detected\n    if face_count > max_faces_detected:\n        max_faces_detected = face_count\nret, frame = cap.read()",
+        "peekOfCode": "eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')\n# Initialize video capture\n# cap = cv2.VideoCapture(0)\n# Variables for tracking\n# detection_result = []  # Log for each frame if a face is detected\n# eye_ratio_result = []  # Log for each frame if eyes are open or closed\n# multi_face_times = []  # Log for frames when multiple faces are detected\n# no_face_start = None  # Track no-face start time\n# no_face_total_time = 0  # Total time with no face detected\n# max_faces_detected = 0  # Maximum faces detected in a single frame",
         "detail": "model",
         "documentation": {}
     }
