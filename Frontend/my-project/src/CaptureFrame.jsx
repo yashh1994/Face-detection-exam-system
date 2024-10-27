@@ -40,20 +40,21 @@ const CaptureFrame = () => {
     if (webcamRef.current) {
       const frameMatrix = getFrameMatrix();
       if (frameMatrix) {
-        // try {
-        //   await fetch('http://localhost:5000/process-frame', {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({ frame: frameMatrix }),
-        //   });
-        //   setFrameCount((prevCount) => prevCount + 1);
-        // } catch (error) {
-        //   console.error('Error sending frame:', error);
-        // }
-        console.log(frameMatrix)
-        setFrameCount((precont)=>precont+1)
+        try {
+          await fetch('http://localhost:5000/process_frame', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              student_id: 'student_1', // Add an identifier for the student
+              frame: frameMatrix,
+            }),
+          });
+          setFrameCount((prevCount) => prevCount + 1);
+        } catch (error) {
+          console.error('Error sending frame:', error);
+        }
       }
     }
   };
@@ -71,7 +72,7 @@ const CaptureFrame = () => {
 
   const fetchEndProcess = async () => {
     try {
-      const response = await fetch('http://localhost:5000/end_process', {
+      const response = await fetch(`http://localhost:5000/end_process?student_id=student_1`, {
         method: 'GET',
       });
       const data = await response.json();
@@ -80,6 +81,7 @@ const CaptureFrame = () => {
       console.error('Error fetching end process data:', error);
     }
   };
+  
 
   return (
     <div>

@@ -9,6 +9,15 @@
         "documentation": {}
     },
     {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
         "label": "time",
         "kind": 6,
         "isExtraImport": true,
@@ -34,12 +43,36 @@
         "documentation": {}
     },
     {
-        "label": "json",
+        "label": "request",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "jsonify",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "numpy",
         "kind": 6,
         "isExtraImport": true,
-        "importPath": "json",
-        "description": "json",
-        "detail": "json",
+        "importPath": "numpy",
+        "description": "numpy",
+        "detail": "numpy",
+        "documentation": {}
+    },
+    {
+        "label": "CORS",
+        "importPath": "flask_cors",
+        "description": "flask_cors",
+        "isExtraImport": true,
+        "detail": "flask_cors",
         "documentation": {}
     },
     {
@@ -68,24 +101,6 @@
         "documentation": {}
     },
     {
-        "label": "process_frame_route",
-        "kind": 2,
-        "importPath": "Backend.model",
-        "description": "Backend.model",
-        "peekOfCode": "def process_frame_route():\n    studentId = request.form['studentId']\n    file = request.files['frame']\n    npimg = np.fromstring(file.read(), np.uint8)\n    frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)\n    process_frame(frame, studentId)\n    return {\"message\": \"Frame processed\"}\n@app.route('/end_process/<studentId>', methods=['GET'])\ndef end_process_route(studentId):\n    return end_process(studentId)",
-        "detail": "Backend.model",
-        "documentation": {}
-    },
-    {
-        "label": "end_process_route",
-        "kind": 2,
-        "importPath": "Backend.model",
-        "description": "Backend.model",
-        "peekOfCode": "def end_process_route(studentId):\n    return end_process(studentId)\nstudent_logs = {}\nclass StudentLog:\n    def __init__(self):\n        self.detection_result = []\n        self.eye_ratio_result = []\n        self.multi_face_times = []\n        self.no_face_start = None\n        self.no_face_total_time = 0",
-        "detail": "Backend.model",
-        "documentation": {}
-    },
-    {
         "label": "end_process",
         "kind": 2,
         "importPath": "Backend.model",
@@ -104,20 +119,38 @@
         "documentation": {}
     },
     {
-        "label": "app",
-        "kind": 5,
+        "label": "hello_api",
+        "kind": 2,
         "importPath": "Backend.model",
         "description": "Backend.model",
-        "peekOfCode": "app = Flask(__name__)\n@app.route('/process_frame/<studentId>', methods=['POST'])\ndef process_frame_route():\n    studentId = request.form['studentId']\n    file = request.files['frame']\n    npimg = np.fromstring(file.read(), np.uint8)\n    frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)\n    process_frame(frame, studentId)\n    return {\"message\": \"Frame processed\"}\n@app.route('/end_process/<studentId>', methods=['GET'])",
+        "peekOfCode": "def hello_api(name):\n    return f'Hello {name}.'\n@app.route('/process_frame', methods=['POST'])\ndef process_frame_route():\n    data = request.json\n    student_id = data.get(\"student_id\")\n    frame = data.get(\"frame\")\n    modi_frame = np.array(frame, dtype=np.uint8)\n    process_frame(frame=modi_frame, studentId=student_id)\n    return {\"message\": \"Frame processed\"}",
         "detail": "Backend.model",
         "documentation": {}
     },
     {
-        "label": "student_logs",
+        "label": "process_frame_route",
+        "kind": 2,
+        "importPath": "Backend.model",
+        "description": "Backend.model",
+        "peekOfCode": "def process_frame_route():\n    data = request.json\n    student_id = data.get(\"student_id\")\n    frame = data.get(\"frame\")\n    modi_frame = np.array(frame, dtype=np.uint8)\n    process_frame(frame=modi_frame, studentId=student_id)\n    return {\"message\": \"Frame processed\"}\n@app.route('/end_process', methods=['GET'])\ndef end_process_route():\n    student_id = request.args.get('student_id')",
+        "detail": "Backend.model",
+        "documentation": {}
+    },
+    {
+        "label": "end_process_route",
+        "kind": 2,
+        "importPath": "Backend.model",
+        "description": "Backend.model",
+        "peekOfCode": "def end_process_route():\n    student_id = request.args.get('student_id')\n    return end_process(studentId=student_id)\nif __name__ == '__main__':\n    app.run(host='0.0.0.0', port=5000)",
+        "detail": "Backend.model",
+        "documentation": {}
+    },
+    {
+        "label": "app",
         "kind": 5,
         "importPath": "Backend.model",
         "description": "Backend.model",
-        "peekOfCode": "student_logs = {}\nclass StudentLog:\n    def __init__(self):\n        self.detection_result = []\n        self.eye_ratio_result = []\n        self.multi_face_times = []\n        self.no_face_start = None\n        self.no_face_total_time = 0\n        self.max_faces_detected = 0\n        self.session_start = time.time()",
+        "peekOfCode": "app = Flask(__name__)   \nCORS(app)\n#! Face detection Model\nface_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')\neye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')\nstudent_logs = {}\n# ! Routes \n#! Student class\nclass StudentLog:\n    def __init__(self):",
         "detail": "Backend.model",
         "documentation": {}
     },
@@ -126,7 +159,7 @@
         "kind": 5,
         "importPath": "Backend.model",
         "description": "Backend.model",
-        "peekOfCode": "face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')\neye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')\n# Initialize video capture\n# cap = cv2.VideoCapture(0)\n# Variables for tracking\n# detection_result = []  # Log for each frame if a face is detected\n# eye_ratio_result = []  # Log for each frame if eyes are open or closed\n# multi_face_times = []  # Log for frames when multiple faces are detected\n# no_face_start = None  # Track no-face start time\n# no_face_total_time = 0  # Total time with no face detected",
+        "peekOfCode": "face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')\neye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')\nstudent_logs = {}\n# ! Routes \n#! Student class\nclass StudentLog:\n    def __init__(self):\n        self.detection_result = []\n        self.eye_ratio_result = []\n        self.multi_face_times = []",
         "detail": "Backend.model",
         "documentation": {}
     },
@@ -135,7 +168,16 @@
         "kind": 5,
         "importPath": "Backend.model",
         "description": "Backend.model",
-        "peekOfCode": "eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')\n# Initialize video capture\n# cap = cv2.VideoCapture(0)\n# Variables for tracking\n# detection_result = []  # Log for each frame if a face is detected\n# eye_ratio_result = []  # Log for each frame if eyes are open or closed\n# multi_face_times = []  # Log for frames when multiple faces are detected\n# no_face_start = None  # Track no-face start time\n# no_face_total_time = 0  # Total time with no face detected\n# max_faces_detected = 0  # Maximum faces detected in a single frame",
+        "peekOfCode": "eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')\nstudent_logs = {}\n# ! Routes \n#! Student class\nclass StudentLog:\n    def __init__(self):\n        self.detection_result = []\n        self.eye_ratio_result = []\n        self.multi_face_times = []\n        self.no_face_start = None",
+        "detail": "Backend.model",
+        "documentation": {}
+    },
+    {
+        "label": "student_logs",
+        "kind": 5,
+        "importPath": "Backend.model",
+        "description": "Backend.model",
+        "peekOfCode": "student_logs = {}\n# ! Routes \n#! Student class\nclass StudentLog:\n    def __init__(self):\n        self.detection_result = []\n        self.eye_ratio_result = []\n        self.multi_face_times = []\n        self.no_face_start = None\n        self.no_face_total_time = 0",
         "detail": "Backend.model",
         "documentation": {}
     },

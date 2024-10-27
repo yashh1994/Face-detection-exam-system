@@ -1,25 +1,24 @@
 import cv2
+import json
 import time
 from collections import Counter
-from flask import Flask
+from flask import Flask, request, jsonify
+import numpy as np
+from flask_cors import CORS
 
-app = Flask(__name__)
+
+app = Flask(__name__)   
+CORS(app)
 
 
-@app.route('/process_frame/<studentId>', methods=['POST'])
-def process_frame_route():
-    studentId = request.form['studentId']
-    file = request.files['frame']
-    npimg = np.fromstring(file.read(), np.uint8)
-    frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
-    process_frame(frame, studentId)
-    return {"message": "Frame processed"}
-
-@app.route('/end_process/<studentId>', methods=['GET'])
-def end_process_route(studentId):
-    return end_process(studentId)
+#! Face detection Model
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 
 student_logs = {}
+# ! Routes 
+
+#! Student class
 class StudentLog:
     def __init__(self):
         self.detection_result = []
@@ -59,12 +58,7 @@ class StudentLog:
             "Max Faces Detected in Single Frame": self.max_faces_detected,
         }
     
-
-
-
 # Load Haar Cascade models for face and eye detection
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 
 # Initialize video capture
 # cap = cv2.VideoCapture(0)
@@ -94,8 +88,6 @@ eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml
 # print(frame)
 
 
-
-
 def end_process(studentId):
     if studentId in student_logs:
         return student_logs[studentId].to_json()
@@ -120,14 +112,14 @@ def process_frame(frame,studentId):
     # Track no-face periods
     if face_detected:
         if log.no_face_start:
-            log.no_face_total_time += time.time() - no_face_start
+            log.no_face_total_time += time.time() - log.no_face_start
             log.no_face_start = None
     else:
-        if no_face_start is None:
-            no_face_start = time.time()
+        if log.no_face_start is None:
+            log.no_face_start = time.time()
 
     # Track multiple face detection times
-    if log.face_count > 1:
+    if face_count > 1:
         log.multi_face_times.append(time.time() - log.session_start)
 
     eyes_open = False
@@ -148,7 +140,7 @@ def process_frame(frame,studentId):
             cv2.rectangle(face_roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 2)
     
     # Log activity for current frame
-    log.log_activity(studentId,face_detected, eyes_open, face_count)
+    log.log_activity(face_detected, eyes_open, face_count)
 
     
 
@@ -176,3 +168,30 @@ def process_frame(frame,studentId):
     #     print(f"Total No Face Detected Time: {no_face_total_time:.2f} seconds")
     #     print(f"Multi-Face Detection Time: {multi_face_duration:.2f} seconds")
     #     print(f"Max Faces Detected in Single Frame: {max_faces_detected}")
+
+
+
+
+
+
+
+@app.route('/<name>',methods=['POST','GET'])
+def hello_api(name):
+    return f'Hello {name}.'
+
+@app.route('/process_frame', methods=['POST'])
+def process_frame_route():
+    data = request.json
+    student_id = data.get("student_id")
+    frame = data.get("frame")
+    modi_frame = np.array(frame, dtype=np.uint8)
+    process_frame(frame=modi_frame, studentId=student_id)
+    return {"message": "Frame processed"}
+
+@app.route('/end_process', methods=['GET'])
+def end_process_route():
+    student_id = request.args.get('student_id')
+    return end_process(studentId=student_id)
+    
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
