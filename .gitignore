@@ -1,4 +1,5 @@
 Backend/vnev
 Frontend/my-project/node_modules
 Backend/.env
+.vscode
 Backend/.vscode
