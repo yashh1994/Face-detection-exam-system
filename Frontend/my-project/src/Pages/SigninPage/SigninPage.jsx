@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import config from '../../config';
 
 const SignIn = () => {
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '', confirmPassword: '' });
@@ -9,19 +10,71 @@ const SignIn = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    if (!isSignIn && formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    let result;
+    if (isSignIn) {
+      result = await checkForLogin();
+      console.log(result)
+      if (result.success) {
+        alert("Login Successful!");
+      } else {
+        alert("Invalid credentials.");
+      }
+    } else {
+      result = await goForSignUp();
+      console.log(result)
+      if (result.success) {
+        alert("Signup Successful!");
+      } else {
+        alert(result.error || "Something went wrong.");
+      }
+    }
+  };
+
+  const checkForLogin = async () => {
+    try {
+      const response = await fetch(`${config.apiUrl}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: formData.fullName, email: formData.email }),
+      });
+      return await response.json();
+    } catch (error) {
+      console.error("Error logging in:", error);
+      return { success: false };
+    }
+  };
+
+  const goForSignUp = async () => {
+    try {
+      const response = await fetch(`${config.apiUrl}/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      return await response.json();
+    } catch (error) {
+      console.error("Error signing up:", error);
+      return { success: false, error: "Network error." };
+    }
   };
 
   const toggleForm = () => {
     setIsSignIn(!isSignIn);
-    setFormData({ fullName: '', email: '', password: '', confirmPassword: '' }); // Reset form data on switch
+    setFormData({ fullName: '', email: '', password: '', confirmPassword: '' });
   };
 
   return (
     <div className="flex h-screen">
-      {/* Left side - Form */}
       {isSignIn ? (
         <div className="flex flex-col justify-center w-1/2 px-16 bg-white">
           <div className="max-w-md mx-auto">
@@ -38,7 +91,7 @@ const SignIn = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                 />
               </div>
               <div>
@@ -49,13 +102,10 @@ const SignIn = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                 />
               </div>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
+              <button type="submit" className="w-full py-2 px-4 border rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
                 Sign in
               </button>
             </form>
@@ -77,7 +127,7 @@ const SignIn = () => {
                   value={formData.fullName}
                   onChange={handleChange}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                 />
               </div>
               <div>
@@ -88,7 +138,7 @@ const SignIn = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                 />
               </div>
               <div>
@@ -99,7 +149,7 @@ const SignIn = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                 />
               </div>
               <div>
@@ -110,20 +160,16 @@ const SignIn = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                 />
               </div>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
+              <button type="submit" className="w-full py-2 px-4 border rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
                 Register
               </button>
             </form>
           </div>
         </div>
       )}
-      {/* Right side - Wallpaper */}
       <div
         className="w-1/2 bg-cover bg-center"
         style={{

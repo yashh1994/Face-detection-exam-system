@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Webcam from 'react-webcam';
+import config from './config';
+
 
 const CaptureFrame = () => {
   const webcamRef = useRef(null);
@@ -41,7 +43,7 @@ const CaptureFrame = () => {
       const frameMatrix = getFrameMatrix();
       if (frameMatrix) {
         try {
-          await fetch('http://localhost:5000/process_frame', {
+          await fetch(`${config.apiUrl}process_frame`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -72,7 +74,7 @@ const CaptureFrame = () => {
 
   const fetchEndProcess = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/end_process?student_id=student_1`, {
+      const response = await fetch(`${config.apiUrl}end_process?student_id=student_1`, {
         method: 'GET',
       });
       const data = await response.json();

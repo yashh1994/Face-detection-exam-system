@@ -16,6 +16,9 @@ class User(Base):
         self.name = name
         self.email = email
         self.password = self.hash_password(password)
+    
+    def __repr__(self):
+        return f"<User(name='{self.name}', email='{self.email}')>"
 
     @staticmethod
     def hash_password(password):

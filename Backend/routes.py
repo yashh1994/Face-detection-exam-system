@@ -1,15 +1,13 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import numpy as np
-from orm_model import User
-
-from flask_migrate import Migrate
+from DB.orm_model import User,Base
+from AI.model_process import end_process,process_frame 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, User
+
 
 
 # Example of getting a variable from the .env file
@@ -19,14 +17,12 @@ app = Flask(__name__)
 CORS(app)
 
 
-some_variable = os.getenv('PG_DATABASE_URL')
+PG_DB_URL = os.getenv('PG_DATABASE_URL')
 
-engine = create_engine(some_variable)
+engine = create_engine(PG_DB_URL)
 Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
-
-
 
 
 #! Routes for Authentication
@@ -48,24 +44,33 @@ def signup():
     session.add(new_user)
     session.commit()
     session.close()
-    return jsonify({"message": "User created successfully."}), 201
+    return jsonify({"message": "User created successfully."}),200
 
 @app.route('/login', methods=['POST'])
 def login():
     session = Session()
     data = request.get_json()
-    name = data.get('name')
-    email = data.get('email')
+    email = data.get('email')  # Assume email is used for login
+    password = data.get('password')
 
-    if not name or not email:
-        return jsonify({"error": "Name and email are required."}), 400
+    if not email or not password:
+        return jsonify({"error": "Email and password are required."}), 400
 
-    user = session.query(User).filter_by(name=name, email=email).first()
+    user = session.query(User).filter_by(email=email).first()
     session.close()
-    if not user:
-        return jsonify({"error": "Invalid credentials."}), 401
 
-    return jsonify({"message": "Login successful.", "user_id": user.id}), 200
+    if not user or not user.verify_password(password):
+        return jsonify({"error": "Invalid credentials."}), 401
+        
+    return jsonify({
+        "message": "Login successful.",
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            # Add any other user info you want to return
+        }
+    }), 200
 
 
 
