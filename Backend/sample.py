@@ -18,11 +18,11 @@ session = Session()
 
 
 #! For the Insert the User
-# user1 = User("Yash","yash@gmail.com","12345")
-# session.add(user1)
-# session.commit()
-# session.close()
-# print("Inserted Sucessfully!")
+user1 = User("Yash","yash@gmail.com","12345")
+session.add(user1)
+session.commit()
+session.close()
+print("Inserted Sucessfully!")
 
 #! For Delete the User
 # user_to_delete = session.query(User).filter_by(email="yash@gmail.com").first()

@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Select, MenuItem, FormControl, Checkbox, Radio, IconButton, Typography, Box, Paper } from '@mui/material';
 import { AddCircleOutline, Delete } from '@mui/icons-material';
 
-
-function QuestionTemplate({ questionData, onUpdate, onRemove }) {
+function QuestionTemplate({ questionData, number, onUpdate, onRemove }) {
     const [questionText, setQuestionText] = useState(questionData.questionText);
     const [answerType, setAnswerType] = useState(questionData.answerType);
     const [options, setOptions] = useState(questionData.options);
@@ -11,6 +10,13 @@ function QuestionTemplate({ questionData, onUpdate, onRemove }) {
     // Add Option Handler
     const addOption = () => {
         const newOptions = [...options, { text: '', isCorrect: false }];
+        setOptions(newOptions);
+        onUpdate({ ...questionData, options: newOptions });
+    };
+
+    // Remove Option Handler
+    const removeOption = (index) => {
+        const newOptions = options.filter((_, i) => i !== index);
         setOptions(newOptions);
         onUpdate({ ...questionData, options: newOptions });
     };
@@ -31,16 +37,14 @@ function QuestionTemplate({ questionData, onUpdate, onRemove }) {
 
     return (
         <Paper elevation={4} sx={{ p: 3, width: '100%', margin: 'auto', mt: 4, position: 'relative' }}>
-            {/* Delete Icon at Top-Right */}
-            <IconButton onClick={onRemove} size="small" color="error" sx={{ position: 'absolute', top: 8, right: 8 }}>
-                <Delete />
-            </IconButton>
-
-            <Typography variant="h6" gutterBottom>
-                Create New Question
-            </Typography>
-
-            {/* Question Input */}
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6" component="span">
+                    {"Question " + number}
+                </Typography>
+                <IconButton onClick={onRemove} size="small" color="error">
+                    <Delete />
+                </IconButton>
+            </Box>
             <TextField
                 label="Question"
                 fullWidth
@@ -99,6 +103,9 @@ function QuestionTemplate({ questionData, onUpdate, onRemove }) {
                             size="small"
                             fullWidth
                         />
+                        <IconButton onClick={() => removeOption(index)} size="small" color="error">
+                            <Delete />
+                        </IconButton>
                     </Box>
                 ))}
 

@@ -37,7 +37,7 @@ function CreateTest() {
     };
 
     return (
-        <Box className="w-screen h-screen bg-blue-900 flex justify-center items-start p-4 overflow-y-auto">
+        <Box className="w-screen h-screen bg-blue-950 flex justify-center items-start p-4 overflow-y-auto">
             <Box sx={{ width: '70%', display: 'flex', flexDirection: 'column', gap: 3 }}>
                 
                 {/* General Test Information */}
@@ -49,9 +49,29 @@ function CreateTest() {
                         backgroundColor: 'white',
                     }}
                 >
+                    <div className='flex flex-row mb-8'>
                     <Typography variant="h5" color="primary" gutterBottom>
                         Test Information
                     </Typography>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                            console.log({
+                                testInfo,
+                                questions
+                            });
+                        }}
+                        sx={{
+                            marginLeft: 'auto',
+                            fontWeight: 'bold',
+                            height: 'fit-content'
+                        }}
+                    >
+                        Create Test
+                    </Button>
+                    </div>
+
                     <Box display="flex" gap={2} mb={4}>
                         <TextField
                             label="Name"
@@ -69,7 +89,7 @@ function CreateTest() {
                             onChange={handleTestInfoChange}
                             fullWidth
                             variant="outlined"
-                            placeholder="Enter test duration"
+                            placeholder="Enter test duration in Minutes. (ex.  10, 30)"
                         />
                     </Box>
                     <TextField
@@ -120,18 +140,15 @@ function CreateTest() {
                         Questions
                     </Typography>
 
-                    {/* Render Questions */}
-                    {questions.map((question) => (
-                        //<Paper key={question.id} elevation={2} sx={{ p: 3, mt: 2 }}>
-                            <QuestionTemplate
-                                questionData={question}
-                                onUpdate={(updatedQuestion) => updateQuestion(question.id, updatedQuestion)}
-                                onRemove={() => removeQuestion(question.id)}
-                            />
-                        //</Paper>
+                    {questions.map((question, index) => (
+                        <QuestionTemplate
+                            key={question.id}
+                            questionData={question}
+                            number={index + 1}
+                            onUpdate={(updatedQuestion) => updateQuestion(question.id, updatedQuestion)}
+                            onRemove={() => removeQuestion(question.id)}
+                        />
                     ))}
-
-                    {/* Add Question Button */}
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Button
                             variant="contained"
