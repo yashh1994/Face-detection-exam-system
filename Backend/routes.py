@@ -37,7 +37,7 @@ def signup():
     if not name or not email or not password:
         return jsonify({"error": "Name, email and password are required."}), 400
 
-    if session.query(User).filter_by(email=email).first() or session.query(User).filter_by(name=name).first():
+    if session.query(User).filter_by(email=email).first():
         return jsonify({"error": "User with this name or email already exists."}), 400
 
     new_user = User(name=name, email=email, password=password)
@@ -58,8 +58,8 @@ def login():
 
     user = session.query(User).filter_by(email=email).first()
     session.close()
-
-    if not user or not user.verify_password(password):
+ 
+    if not user or not user.varify_password(password):
         return jsonify({"error": "Invalid credentials."}), 401
         
     return jsonify({

@@ -33,17 +33,17 @@ session = Session()
 # print("Deleted Sucessfully!")
 
 #! Empty the table
-all_user = session.query(User).all()
-for u in all_user:
-    session.delete(u)
-    print(f"Deleted User: {u}")
-session.commit()
-session.close()
+# all_user = session.query(User).all()
+# for u in all_user:
+#     session.delete(u)
+#     print(f"Deleted User: {u}")
+# session.commit()
+# session.close()
 
 
 # ! Print all the User
-# users = session.query(User).all()
-# for u in users:
-#     print(u)
-# session.close()
+users = session.query(User).all()
+for u in users:
+    print(u)
+session.close()
 
