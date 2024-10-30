@@ -9,6 +9,6 @@ import QuestionTemplate from './Pages/CreateTest/Components/QuestionTemplate.jsx
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-  <QuestionTemplate />
+  <CreateTest />
   </StrictMode>,
 )

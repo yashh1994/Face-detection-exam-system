@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { TextField, Select, MenuItem, FormControl, InputLabel, Checkbox, Radio, IconButton, Typography, Box, Paper } from '@mui/material';
-import { AddCircleOutline } from '@mui/icons-material';
+import { TextField, Select, MenuItem, FormControl, Checkbox, Radio, IconButton, Typography, Box, Paper } from '@mui/material';
+import { AddCircleOutline, Delete } from '@mui/icons-material';
 
-function QuestionTemplate() {
-    const [questionText, setQuestionText] = useState('');
-    const [answerType, setAnswerType] = useState('single'); // 'single' or 'multiple'
-    const [options, setOptions] = useState([]);
+
+function QuestionTemplate({ questionData, onUpdate, onRemove }) {
+    const [questionText, setQuestionText] = useState(questionData.questionText);
+    const [answerType, setAnswerType] = useState(questionData.answerType);
+    const [options, setOptions] = useState(questionData.options);
 
     // Add Option Handler
     const addOption = () => {
-        setOptions([...options, { text: '', isCorrect: false }]);
+        const newOptions = [...options, { text: '', isCorrect: false }];
+        setOptions(newOptions);
+        onUpdate({ ...questionData, options: newOptions });
     };
 
     // Handle Option Changes
@@ -17,17 +20,23 @@ function QuestionTemplate() {
         const updatedOptions = [...options];
         updatedOptions[index][field] = value;
 
-        // Single selection type allows only one correct answer
+        // If single selection type, only one option can be correct
         if (field === 'isCorrect' && answerType === 'single') {
-            updatedOptions.forEach((opt, i) => opt.isCorrect = i === index);
+            updatedOptions.forEach((opt, i) => (opt.isCorrect = i === index));
         }
 
         setOptions(updatedOptions);
+        onUpdate({ ...questionData, options: updatedOptions });
     };
 
     return (
-        <Paper elevation={4} sx={{ p: 4, width: '60%', margin: 'auto', mt: 5 }}>
-            <Typography variant="h5" gutterBottom>
+        <Paper elevation={4} sx={{ p: 3, width: '100%', margin: 'auto', mt: 4, position: 'relative' }}>
+            {/* Delete Icon at Top-Right */}
+            <IconButton onClick={onRemove} size="small" color="error" sx={{ position: 'absolute', top: 8, right: 8 }}>
+                <Delete />
+            </IconButton>
+
+            <Typography variant="h6" gutterBottom>
                 Create New Question
             </Typography>
 
@@ -36,18 +45,24 @@ function QuestionTemplate() {
                 label="Question"
                 fullWidth
                 variant="outlined"
-                margin="normal"
+                margin="dense"
                 value={questionText}
-                onChange={(e) => setQuestionText(e.target.value)}
+                onChange={(e) => {
+                    setQuestionText(e.target.value);
+                    onUpdate({ ...questionData, questionText: e.target.value });
+                }}
                 placeholder="Enter your question here"
+                sx={{ mb: 2 }}
             />
 
             {/* Answer Type Selection */}
-            <FormControl fullWidth margin="normal">
-                <InputLabel>Answer Type</InputLabel>
+            <FormControl fullWidth margin="dense">
                 <Select
                     value={answerType}
-                    onChange={(e) => setAnswerType(e.target.value)}
+                    onChange={(e) => {
+                        setAnswerType(e.target.value);
+                        onUpdate({ ...questionData, answerType: e.target.value });
+                    }}
                     label="Answer Type"
                 >
                     <MenuItem value="single">Single Select</MenuItem>
@@ -57,7 +72,7 @@ function QuestionTemplate() {
 
             {/* Options Section */}
             <Box mt={2}>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="subtitle1" gutterBottom>
                     Options
                 </Typography>
 
@@ -81,17 +96,21 @@ function QuestionTemplate() {
                             variant="outlined"
                             value={option.text}
                             onChange={(e) => handleOptionChange(index, 'text', e.target.value)}
+                            size="small"
                             fullWidth
                         />
                     </Box>
                 ))}
 
-                <IconButton color="primary" onClick={addOption} size="large" sx={{ mt: 1 }}>
-                    <AddCircleOutline fontSize="inherit" />
-                </IconButton>
-                <Typography variant="body2" color="textSecondary">
-                    Add Option
-                </Typography>
+                {/* Add Option Button */}
+                <Box display="flex" alignItems="center" mt={1}>
+                    <IconButton color="primary" onClick={addOption} size="large">
+                        <AddCircleOutline fontSize="inherit" />
+                    </IconButton>
+                    <Typography variant="body2" color="textSecondary" ml={1}>
+                        Add Option
+                    </Typography>
+                </Box>
             </Box>
         </Paper>
     );
