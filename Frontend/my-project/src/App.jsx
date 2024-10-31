@@ -7,7 +7,7 @@ function App() {
 
   
   useEffect(()=>{
-    const apiUrl = import.meta.env.VITE_BACKEND_API_KEY;
+    
 console.log('API URL:', apiUrl);
   },[])
   return (

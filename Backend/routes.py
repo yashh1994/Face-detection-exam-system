@@ -3,10 +3,12 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import numpy as np
-from DB.orm_model import User,Base
+from DB.orm_model import Base, Test, User
 from AI.model_process import end_process,process_frame 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sample import session
+from passlib.context import CryptContext
 
 
 
@@ -23,6 +25,27 @@ engine = create_engine(PG_DB_URL)
 Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
+
+
+
+#! Routes for Adding the Tests
+@app.route('/add-test/<user_id>', methods=['POST'])
+def create_test(user_id):
+    session = Session()
+    data = request.get_json()
+    
+    t1 = Test(data['title'],data['duration'],data['description'],data['start_time'],data['end_time'],data['user_id'],data['questions'])
+
+    session.add(t1)
+    session.commit()
+    test_id = t1.id
+    pwd_context = CryptContext(schemes=["bcrypt"],deprecated="auto")
+    open_link = pwd_context.hash(test_id)
+    session.close()
+    return jsonify({"open_link": str(open_link)}), 200
+
+
+
 
 
 #! Routes for Authentication

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Box, Typography, TextField, Button, Paper } from '@mui/material';
+import { Box, Typography, TextField, Button, Paper, duration } from '@mui/material';
 import QuestionTemplate from './Components/QuestionTemplate';
 import { AddCircle } from '@mui/icons-material';
+import { stringify } from 'postcss';
 
 function CreateTest() {
     const [testInfo, setTestInfo] = useState({
-        name: '',
+        title: '',
         duration: '',
         description: '',
         startTime: '',
@@ -57,10 +58,16 @@ function CreateTest() {
                         variant="contained"
                         color="primary"
                         onClick={() => {
-                            console.log({
-                                testInfo,
-                                questions
-                            });
+                            let test = {
+                                "title": String(testInfo['title']),
+                                "duration": String(testInfo['duration']),
+                                "description": String(testInfo['description']),
+                                "start_time": String(testInfo['startTime']),
+                                "end_time": String(testInfo['endTime']),
+                                "user_id": "8" 
+                            };
+                            console.log(test);
+                            console.log(questions)
                         }}
                         sx={{
                             marginLeft: 'auto',
@@ -75,8 +82,8 @@ function CreateTest() {
                     <Box display="flex" gap={2} mb={4}>
                         <TextField
                             label="Name"
-                            id="name"
-                            value={testInfo.name}
+                            id="title"
+                            value={testInfo.title}
                             onChange={handleTestInfoChange}
                             fullWidth
                             variant="outlined"
@@ -85,11 +92,12 @@ function CreateTest() {
                         <TextField
                             label="Duration"
                             id="duration"
+                            type='number'
                             value={testInfo.duration}
                             onChange={handleTestInfoChange}
                             fullWidth
                             variant="outlined"
-                            placeholder="Enter test duration in Minutes. (ex.  10, 30)"
+                            placeholder="In minutes(ex.  10, 30)"
                         />
                     </Box>
                     <TextField
