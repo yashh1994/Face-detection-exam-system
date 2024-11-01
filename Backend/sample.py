@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
 from DB.orm_model import Base, Test, User
+from routes import encrypt_decrypt
 
 load_dotenv()
 
@@ -16,6 +17,8 @@ Session = sessionmaker(bind=engine)
 
 session = Session()
 
+
+print(encrypt_decrypt(data="gAAAAABnJH5VakVFFfbaPgJVB_SFbjOdbjzscTv57hPG56tTCEH-4RlYXmN9fdxM_GkY3Kiz6Fy8wiJ-Dq6rE_ziFZCNyOwCaw==",action="decode"))
 
 #! For the Insert the User
 # try:

@@ -7,9 +7,7 @@ from DB.orm_model import Base, Test, User
 from AI.model_process import end_process,process_frame 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sample import session
-from passlib.context import CryptContext
-
+from Utils import encrypt_decrypt
 
 
 # Example of getting a variable from the .env file
@@ -27,6 +25,12 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
 
+# Generate a key (you should save this securely to use for both encryption and decryption)
+# Use this line only once to generate a key, then use the saved key below for actual encoding/decoding
+# key = Fernet.generate_key()
+# print("Generated Key:", key)
+
+# Use the generated key here (replace with your actual key)
 
 #! Routes for Adding the Tests
 @app.route('/add-test/<user_id>', methods=['POST'])
@@ -34,15 +38,21 @@ def create_test(user_id):
     session = Session()
     data = request.get_json()
     
-    t1 = Test(data['title'],data['duration'],data['description'],data['start_time'],data['end_time'],data['user_id'],data['questions'])
-
-    session.add(t1)
-    session.commit()
-    test_id = t1.id
-    pwd_context = CryptContext(schemes=["bcrypt"],deprecated="auto")
-    open_link = pwd_context.hash(test_id)
-    session.close()
-    return jsonify({"open_link": str(open_link)}), 200
+ # Create test instance
+    try:
+        t1 = Test(title=data['title'],duration= data['duration'],description= data['description'],start_time= data['start_time'],end_time= data['end_time'],user_id= user_id,question= data['questions'])
+        session.add(t1)
+        session.commit()
+        
+        # Generate open link
+        test_id = t1.id
+        open_link = encrypt_decrypt(str(test_id),action="encode")
+        return jsonify({"message": "Test created successfully", "open_link": open_link}), 201
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
 
 
 
