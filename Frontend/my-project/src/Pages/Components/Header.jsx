@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Button, Box } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../../Auth/AuthContext'; // Adjust the import path as needed
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const { authToken, logout } = useContext(AuthContext); // Access authToken and logout
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -12,6 +14,11 @@ const Header = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout(); // Call logout function from context
+    handleMenuClose();
   };
 
   const navItems = [
@@ -81,6 +88,23 @@ const Header = () => {
           >
             Create Test
           </Button>
+
+          {/* Logout Button (visible if logged in) */}
+          {authToken && (
+            <Button
+              onClick={handleLogout}
+              sx={{
+                color: '#fff',
+                fontWeight: 600,
+                marginLeft: 2,
+                '&:hover': {
+                  color: '#FFCE44', // Hover color for logout
+                },
+              }}
+            >
+              Logout
+            </Button>
+          )}
         </Box>
 
         {/* Mobile Menu Icon */}
@@ -114,6 +138,12 @@ const Header = () => {
             >
               Create Test
             </MenuItem>
+            {/* Logout option for mobile view */}
+            {authToken && (
+              <MenuItem onClick={handleLogout} sx={{ color: '#FFCE44' }}>
+                Logout
+              </MenuItem>
+            )}
           </Menu>
         </Box>
       </Toolbar>

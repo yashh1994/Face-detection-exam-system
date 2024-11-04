@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState ,useContext, useEffect} from 'react';
 import { Box, Typography, TextField, Button, Paper } from '@mui/material';
 import QuestionTemplate from './Components/QuestionTemplate';
 import { AddCircle } from '@mui/icons-material';
 import axios from 'axios';
 import config from '../config';
+import { AuthContext } from '../Auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
+
 
 function CreateTest() {
     const [testInfo, setTestInfo] = useState({
@@ -13,8 +17,18 @@ function CreateTest() {
         startTime: '',
         endTime: '',
     });
+    const navigate = useNavigate();
+    const { login,authToken } = useContext(AuthContext);
     const [questions, setQuestions] = useState([]);
 
+    useEffect(()=>{
+        if (!authToken) {
+            navigate('/login');
+          }else{
+            console.log(authToken)
+          }
+    },[])
+    
     const handleTestInfoChange = (e) => {
         setTestInfo({ ...testInfo, [e.target.id]: e.target.value });
     };
@@ -74,8 +88,8 @@ function CreateTest() {
                     </Box>
                     <TextField label="Description" id="description" value={testInfo.description} onChange={handleTestInfoChange} fullWidth multiline rows={3} sx={{ mb: 3 }} />
                     <Box display="flex" gap={2} mb={4}>
-                        <TextField label="Valid Start Time" id="startTime" type="datetime-local" value={testInfo.startTime} onChange={handleTestInfoChange} fullWidth />
-                        <TextField label="Valid End Time" id="endTime" type="datetime-local" value={testInfo.endTime} onChange={handleTestInfoChange} fullWidth />
+                        <TextField  id="startTime" type="datetime-local" value={testInfo.startTime} onChange={handleTestInfoChange} fullWidth />
+                        <TextField  id="endTime" type="datetime-local" value={testInfo.endTime} onChange={handleTestInfoChange} fullWidth />
                     </Box>
                 </Paper>
 

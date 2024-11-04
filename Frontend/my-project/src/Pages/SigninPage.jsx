@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
-import config from '../../../config';
+import React, { useState,useContext } from 'react';
+import config from '../config';
+import { AuthContext } from '../Auth/AuthContext'; // Adjust the import path as needed
+import { useNavigate } from 'react-router-dom';
 
 
 const SignIn = () => {
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '', confirmPassword: '' });
   const [isSignIn, setIsSignIn] = useState(false);
-
+  const { login,authToken } = useContext(AuthContext);
+  const navigate = useNavigate();
+  
+  if (authToken) {
+    navigate('/');
+  }
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -19,8 +26,9 @@ const SignIn = () => {
         body: JSON.stringify({ email: formData.email, password: formData.password }),
       });
       const data = await response.json();
-      console.log(data)
       if (response.ok) {
+        console.log(data['user'])
+        login(data['user'])
         return { success: true, data };
       } else {
         return { success: false, error: data.error };
@@ -66,6 +74,7 @@ const SignIn = () => {
       result = await checkForLogin();
       if (result.success) {
         alert("Login Successful!");
+        navigate('/');
       } else {
         alert(result.error || "Invalid credentials.");
       }
