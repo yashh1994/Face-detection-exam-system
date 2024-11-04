@@ -6,6 +6,7 @@ import Analysis from './Pages/AnalysisPage';
 import About from './Pages/AboutPage';
 import Help from './Pages/HelpPage';
 import CreateTest from './Pages/CreateTest';
+import PrivateRoute from './Auth/PrivateRoute'; // Import the PrivateRoute component
 
 const App = () => {
   return (
@@ -13,10 +14,24 @@ const App = () => {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/analysis" element={<Analysis />} />
+        <Route 
+          path="/analysis" 
+          element={
+            <PrivateRoute>
+              <Analysis />
+            </PrivateRoute>
+          } 
+        />
         <Route path="/about" element={<About />} />
         <Route path="/help" element={<Help />} />
-        <Route path="/create-test" element={<CreateTest />} />
+        <Route 
+          path="/create-test" 
+          element={
+            <PrivateRoute>
+              <CreateTest />
+            </PrivateRoute>
+          } 
+        />
       </Routes>
     </Router>
   );

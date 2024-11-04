@@ -19,6 +19,7 @@ const SignIn = () => {
         body: JSON.stringify({ email: formData.email, password: formData.password }),
       });
       const data = await response.json();
+      console.log(data)
       if (response.ok) {
         return { success: true, data };
       } else {
