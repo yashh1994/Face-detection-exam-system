@@ -18,8 +18,10 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-print(encrypt_decrypt(data="gAAAAABnJH5VakVFFfbaPgJVB_SFbjOdbjzscTv57hPG56tTCEH-4RlYXmN9fdxM_GkY3Kiz6Fy8wiJ-Dq6rE_ziFZCNyOwCaw==",action="decode"))
-
+# try:
+# except Exception as e:
+#     print("Error is : ",e)
+print("Open link: ",encrypt_decrypt(data="6",action="encode"))
 #! For the Insert the User
 # try:
 #     user1 = User(name="Yash",email="yash@gmail.com",password="12345")
@@ -75,3 +77,5 @@ print(encrypt_decrypt(data="gAAAAABnJH5VakVFFfbaPgJVB_SFbjOdbjzscTv57hPG56tTCEH-
 # session.commit()
 # session.close()
 # print("Inserted Sucessfully!")
+
+

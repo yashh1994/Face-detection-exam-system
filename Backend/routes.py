@@ -55,6 +55,38 @@ def create_test(user_id):
         session.close()
 
 
+@app.route('/get-test/<open_link>', methods=['GET'])
+def get_test(open_link):
+    session = Session()
+    try:
+        # Decode the open_link to get the test ID
+        test_id = encrypt_decrypt(data=open_link, action="decode")
+        
+        # Fetch the test object from the database
+        test = session.query(Test).filter_by(id=test_id).first()
+        
+        # Check if the test exists
+        if test is None:
+            return jsonify({"error": "Test not found"}), 404
+        
+        # Prepare the test data to return as JSON
+        test_data = {
+            "id": test.id,
+            "title": test.title,
+            "duration": test.duration,
+            "description": test.description,
+            "start_time": test.start_time,
+            "end_time": test.end_time,
+            "user_id": test.user_id,
+            "questions": test.questions  # Ensure `questions` is JSON serializable
+        }
+        
+        return jsonify(test_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+    
 
 
 
