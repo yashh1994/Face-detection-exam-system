@@ -32,13 +32,13 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTests = async () => {
-      if (!authToken) {
-        navigate('/login');
-      }
 
-      console.log(authToken)
-  
+    if (authToken == undefined) {
+      navigate('/login');
+    }
+
+    console.log(authToken)
+    const fetchTests = async () => {
       try {
         setLoading(true);
         const response = await axios.get(`${config.apiUrl}/get-my-test/${authToken['id']}`);
@@ -51,7 +51,7 @@ const Home = () => {
     };
   
     fetchTests();
-  }, []);
+  }, [authToken, navigate]);
   
 
   const handleOpenDialog = () => {

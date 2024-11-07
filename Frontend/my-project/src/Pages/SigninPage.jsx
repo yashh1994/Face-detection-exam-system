@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import config from '../config';
-import { AuthContext } from '../Auth/AuthContext'; // Adjust the import path as needed
+import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const SignIn = () => {
@@ -10,9 +10,7 @@ const SignIn = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect if user is already logged in
-    if (localStorage.getItem('authToken')) {
-      login(localStorage.getItem('authToken'))
+    if (authToken) {
       navigate('/home');
     }
   }, [authToken, navigate]);
@@ -33,10 +31,11 @@ const SignIn = () => {
       if (response.ok) {
         console.log(data.user)
         login({
-          "email":String(data.user.email),
-          "id":String(data.user.id),
-          "name":String(data.user.name)
-        });
+          email:data.user['email'],
+          id:data.user['id'],
+          name:data.user['name']
+        })
+        login(data.user); // Storing only the token
         return { success: true, data };
       } else {
         return { success: false, error: data.error };
@@ -61,7 +60,7 @@ const SignIn = () => {
       const data = await response.json();
       if (response.ok) {
         alert("Signup Successful! Please login.");
-        setIsSignIn(true); // Switch to sign-in form after successful signup
+        setIsSignIn(true);
         return { success: true, data };
       } else {
         return { success: false, error: data.error };
@@ -83,7 +82,6 @@ const SignIn = () => {
     if (isSignIn) {
       result = await checkForLogin();
       if (result.success) {
-
         alert("Login Successful!");
         navigate('/home');
       } else {
@@ -193,18 +191,12 @@ const SignIn = () => {
                 />
               </div>
               <button type="submit" className="w-full py-2 px-4 border rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
-                Register
+                Sign Up
               </button>
             </form>
           </div>
         </div>
       )}
-      <div
-        className="w-1/2 bg-cover bg-center"
-        style={{
-          backgroundImage: "url('https://imgs.search.brave.com/LBLpEmiWcQsdE2yvobTwgJXnA21qAhb5nSZRrb3HIWQ/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzEwLzAxLzc5LzQx/LzM2MF9GXzEwMDE3/OTQxMTFfd2k2ZDR4/cGVzcGM5TlNSRmFH/Vm1ScEZMQUxXRkV5/aUUuanBn')",
-        }}
-      ></div>
     </div>
   );
 };
