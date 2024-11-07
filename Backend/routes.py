@@ -88,6 +88,35 @@ def get_test(open_link):
         session.close()
     
 
+@app.route('/get-my-test/<user_id>', methods=['GET'])
+def get_my_test(user_id):
+    session = Session()
+    try:
+        tests = session.query(Test).filter_by(user_id=str(user_id)).all()
+
+        if not tests:
+            return jsonify({"error": "Tests not found"}), 404
+        
+        tests_data = [
+            {
+                "id": test.id,
+                "title": test.title,
+                "duration": test.duration,
+                "description": test.description,
+                "start_time": test.start_time,
+                "end_time": test.end_time,
+                "user_id": test.user_id,
+                "questions": test.questions  # Ensure `questions` is JSON serializable
+            }
+            for test in tests
+        ]
+        
+        return jsonify(tests_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
 
 
 #! Routes for Authentication
@@ -171,10 +200,9 @@ def end_process_route():
 
 
 
-
-
-
-
+@app.route('/', methods=['GET'])
+def test_route():
+    return "The routes are working!", 200
 
 
 if __name__ == '__main__':

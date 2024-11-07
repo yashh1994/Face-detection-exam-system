@@ -1,22 +1,26 @@
-import React, { useState,useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import config from '../config';
 import { AuthContext } from '../Auth/AuthContext'; // Adjust the import path as needed
 import { useNavigate } from 'react-router-dom';
 
-
 const SignIn = () => {
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '', confirmPassword: '' });
   const [isSignIn, setIsSignIn] = useState(false);
-  const { login,authToken } = useContext(AuthContext);
+  const { login, authToken } = useContext(AuthContext);
   const navigate = useNavigate();
-  
-  if (authToken) {
-    navigate('/');
-  }
+
+  useEffect(() => {
+    // Redirect if user is already logged in
+    if (localStorage.getItem('authToken')) {
+      login(localStorage.getItem('authToken'))
+      navigate('/home');
+    }
+  }, [authToken, navigate]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    };
+  };
 
   const checkForLogin = async () => {
     try {
@@ -27,8 +31,12 @@ const SignIn = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        console.log(data['user'])
-        login(data['user'])
+        console.log(data.user)
+        login({
+          "email":String(data.user.email),
+          "id":String(data.user.id),
+          "name":String(data.user.name)
+        });
         return { success: true, data };
       } else {
         return { success: false, error: data.error };
@@ -37,8 +45,8 @@ const SignIn = () => {
       console.error("Error logging in:", error);
       return { success: false, error: "Network error. Please try again later." };
     }
-    };
-  
+  };
+
   const goForSignUp = async () => {
     try {
       const response = await fetch(`${config.apiUrl}/signup`, {
@@ -52,6 +60,8 @@ const SignIn = () => {
       });
       const data = await response.json();
       if (response.ok) {
+        alert("Signup Successful! Please login.");
+        setIsSignIn(true); // Switch to sign-in form after successful signup
         return { success: true, data };
       } else {
         return { success: false, error: data.error };
@@ -60,7 +70,7 @@ const SignIn = () => {
       console.error("Error signing up:", error);
       return { success: false, error: "Network error. Please try again later." };
     }
-    };
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,25 +83,24 @@ const SignIn = () => {
     if (isSignIn) {
       result = await checkForLogin();
       if (result.success) {
+
         alert("Login Successful!");
-        navigate('/');
+        navigate('/home');
       } else {
         alert(result.error || "Invalid credentials.");
       }
     } else {
       result = await goForSignUp();
-      if (result.success) {
-        alert("Signup Successful!");
-      } else {
+      if (!result.success) {
         alert(result.error || "Something went wrong.");
       }
     }
-    };
+  };
 
   const toggleForm = () => {
     setIsSignIn(!isSignIn);
     setFormData({ fullName: '', email: '', password: '', confirmPassword: '' });
-    };
+  };
 
   return (
     <div className="flex h-screen">
@@ -201,7 +210,3 @@ const SignIn = () => {
 };
 
 export default SignIn;
-
-
-
-

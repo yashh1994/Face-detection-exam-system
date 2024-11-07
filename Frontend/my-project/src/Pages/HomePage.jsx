@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Container,
   Typography,
@@ -15,40 +15,44 @@ import {
   TextField,
   CircularProgress,
 } from '@mui/material';
-
-const tests = [
-  {
-    id: 1,
-    title: 'Math Test',
-    description: 'A comprehensive test on algebra and geometry.',
-    date: '2024-10-20',
-  },
-  {
-    id: 2,
-    title: 'Science Test',
-    description: 'Exploring the basics of physics and chemistry.',
-    date: '2024-10-22',
-  },
-  {
-    id: 3,
-    title: 'History Test',
-    description: 'A deep dive into ancient civilizations.',
-    date: '2024-10-25',
-  },
-];
+import axios from 'axios';
+import config from '../config';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../Auth/AuthContext';
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
+  const [tests, setTests] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [testLink, setTestLink] = useState('');
   const [testDialogOpen, setTestDialogOpen] = useState(false);
   const [checking, setChecking] = useState(false);
-  const [testData, setTestData] = useState(null);
+  const [selectedTestData, setSelectedTestData] = useState(null);
+  const { authToken } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulate data fetch with loading effect
-    setTimeout(() => setLoading(false), 2000);
+    const fetchTests = async () => {
+      if (!authToken) {
+        navigate('/login');
+      }
+
+      console.log(authToken)
+  
+      try {
+        setLoading(true);
+        const response = await axios.get(`${config.apiUrl}/get-my-test/${authToken['id']}`);
+        setTests(response.data);
+      } catch (error) {
+        console.error('Error fetching tests:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchTests();
   }, []);
+  
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -61,25 +65,22 @@ const Home = () => {
 
   const handleCheckLink = () => {
     setChecking(true);
+    // Simulate a network delay for checking the link
     setTimeout(() => {
-      // Simulate successful test link check and set test details
-      setTestData({
-        title: 'Sample Test',
-        description: 'This is a sample description for the test.',
-        duration: '60 minutes',
-        start_time: '10:00 AM',
-        end_time: '11:00 AM',
-      });
       setChecking(false);
       setOpenDialog(false);
-      setTestDialogOpen(true);
-    }, 1500); // Simulating network delay
+    }, 1500);
+  };
+
+  const handleTestCardClick = (test) => {
+    setSelectedTestData(test);
+    setTestDialogOpen(true);
   };
 
   return (
     <Container sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom align="center">
-        Already Given Tests
+        User-Created Tests
       </Typography>
 
       {loading ? (
@@ -90,13 +91,22 @@ const Home = () => {
         <>
           {tests.length === 0 ? (
             <Typography variant="h6" align="center" sx={{ color: 'gray' }}>
-              No tests have been given yet.
+              No tests available.
             </Typography>
           ) : (
             <Grid container spacing={3}>
               {tests.map((test) => (
                 <Grid item xs={12} sm={6} md={4} key={test.id}>
-                  <Card sx={{ background: '#e3f2fd', borderRadius: '15px', boxShadow: 3 }}>
+                  <Card
+                    onClick={() => handleTestCardClick(test)}
+                    sx={{
+                      background: '#e3f2fd',
+                      borderRadius: '15px',
+                      boxShadow: 3,
+                      cursor: 'pointer',
+                      '&:hover': { boxShadow: 6 },
+                    }}
+                  >
                     <CardContent>
                       <Typography variant="h5" gutterBottom>
                         {test.title}
@@ -105,7 +115,7 @@ const Home = () => {
                         {test.description}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Date Given: {test.date}
+                        Duration: {test.duration} minutes
                       </Typography>
                     </CardContent>
                   </Card>
@@ -162,22 +172,23 @@ const Home = () => {
       </Dialog>
 
       {/* Test Details Dialog */}
-      <Dialog open={testDialogOpen} onClose={() => setTestDialogOpen(false)}>
-        <DialogTitle>Test Details</DialogTitle>
-        <DialogContent>
-          <Typography variant="h6">{testData?.title}</Typography>
-          <Typography>Description: {testData?.description}</Typography>
-          <Typography>Duration: {testData?.duration}</Typography>
-          <Typography>Start Time: {testData?.start_time}</Typography>
-          <Typography>End Time: {testData?.end_time}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setTestDialogOpen(false)}>Cancel</Button>
-          <Button color="primary" variant="contained">
-            Start Test
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {selectedTestData && (
+        <Dialog open={testDialogOpen} onClose={() => setTestDialogOpen(false)}>
+          <DialogTitle>{selectedTestData.title}</DialogTitle>
+          <DialogContent>
+            <Typography>Description: {selectedTestData.description}</Typography>
+            <Typography>Duration: {selectedTestData.duration} minutes</Typography>
+            <Typography>Start Time: {selectedTestData.start_time}</Typography>
+            <Typography>End Time: {selectedTestData.end_time}</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setTestDialogOpen(false)}>Close</Button>
+            <Button color="primary" variant="contained">
+              Start Test
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Container>
   );
 };

@@ -18,9 +18,10 @@ const AppContent = () => {
       {location.pathname !== '/login' && <Header />}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/login" element={<SignIn />} />
         <Route 
-          path="/analysis" 
+          path="/analysis"  
           element={
               <Analysis />
           } 
