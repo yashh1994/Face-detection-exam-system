@@ -14,7 +14,9 @@ import {
   DialogTitle,
   TextField,
   CircularProgress,
+  IconButton,
 } from '@mui/material';
+import { ContentCopy } from '@mui/icons-material';
 import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
@@ -28,20 +30,18 @@ const Home = () => {
   const [testDialogOpen, setTestDialogOpen] = useState(false);
   const [checking, setChecking] = useState(false);
   const [selectedTestData, setSelectedTestData] = useState(null);
+  const [linkTestData, setLinkTestData] = useState(null);  // Store test details from the open link
   const { authToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-
-    if (authToken == undefined) {
+    if (!authToken) {
       navigate('/login');
     }
-
-    console.log(authToken)
     const fetchTests = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${config.apiUrl}/get-my-test/${authToken['id']}`);
+        const response = await axios.get(`${config.apiUrl}/get-my-test/${authToken.id}`);
         setTests(response.data);
       } catch (error) {
         console.error('Error fetching tests:', error);
@@ -49,10 +49,8 @@ const Home = () => {
         setLoading(false);
       }
     };
-  
     fetchTests();
   }, [authToken, navigate]);
-  
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -63,18 +61,29 @@ const Home = () => {
     setTestLink('');
   };
 
-  const handleCheckLink = () => {
+  const handleCheckLink = async () => {
     setChecking(true);
-    // Simulate a network delay for checking the link
-    setTimeout(() => {
+    try {
+      const response = await axios.get(`${config.apiUrl}/get-test/${testLink}`);
+      setLinkTestData(response.data);  // Save the fetched test details
+      setOpenDialog(false);  // Close the initial dialog
+      setTestDialogOpen(true);  // Open the test details dialog
+    } catch (error) {
+      console.error('Invalid test link:', error);
+      alert('Invalid test link. Please try again.');
+    } finally {
       setChecking(false);
-      setOpenDialog(false);
-    }, 1500);
+    }
   };
 
   const handleTestCardClick = (test) => {
     setSelectedTestData(test);
     setTestDialogOpen(true);
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    alert('Link copied to clipboard');
   };
 
   return (
@@ -172,20 +181,32 @@ const Home = () => {
       </Dialog>
 
       {/* Test Details Dialog */}
-      {selectedTestData && (
+      {(selectedTestData || linkTestData) && (
         <Dialog open={testDialogOpen} onClose={() => setTestDialogOpen(false)}>
-          <DialogTitle>{selectedTestData.title}</DialogTitle>
+          <DialogTitle>{(selectedTestData || linkTestData).title}</DialogTitle>
           <DialogContent>
-            <Typography>Description: {selectedTestData.description}</Typography>
-            <Typography>Duration: {selectedTestData.duration} minutes</Typography>
-            <Typography>Start Time: {selectedTestData.start_time}</Typography>
-            <Typography>End Time: {selectedTestData.end_time}</Typography>
+            <Typography>Description: {(selectedTestData || linkTestData).description}</Typography>
+            <Typography>Duration: {(selectedTestData || linkTestData).duration} minutes</Typography>
+            <Typography>Start Time: {(selectedTestData || linkTestData).start_time}</Typography>
+            <Typography>End Time: {(selectedTestData || linkTestData).end_time}</Typography>
+            <Box display="flex" alignItems="center">
+              <Typography>Open Link: {(selectedTestData || linkTestData).open_link}</Typography>
+              <IconButton onClick={() => copyToClipboard((selectedTestData || linkTestData).open_link)}>
+                <ContentCopy />
+              </IconButton>
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setTestDialogOpen(false)}>Close</Button>
-            <Button color="primary" variant="contained">
-              Start Test
-            </Button>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={() => {
+              navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
+            }}
+          >
+            Start Test
+          </Button>
           </DialogActions>
         </Dialog>
       )}

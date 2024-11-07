@@ -8,7 +8,7 @@ import Help from './Pages/HelpPage';
 import CreateTest from './Pages/CreateTest';
 import PrivateRoute from './Auth/PrivateRoute'; // Import the PrivateRoute component
 import SignIn from './Pages/SigninPage';
-
+import ExamPage from './Pages/ExamPage';
 const AppContent = () => {
   const location = useLocation();
 
@@ -18,6 +18,7 @@ const AppContent = () => {
       {location.pathname !== '/login' && <Header />}
       <Routes>
         <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<SignIn />} />
         <Route 
           path="/analysis"  
@@ -25,6 +26,7 @@ const AppContent = () => {
               <Analysis />
           } 
         />
+        <Route path="/exam" element={<ExamPage />} />
         <Route path="/about" element={<About />} />
         <Route path="/help" element={<Help />} />
         <Route 

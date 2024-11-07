@@ -35,7 +35,6 @@ const SignIn = () => {
           id:data.user['id'],
           name:data.user['name']
         })
-        login(data.user); // Storing only the token
         return { success: true, data };
       } else {
         return { success: false, error: data.error };
@@ -197,6 +196,9 @@ const SignIn = () => {
           </div>
         </div>
       )}
+      <div className="w-1/2 bg-cover bg-center" style={{ backgroundImage: 'url(https://imgs.search.brave.com/k4sxOtPxdWgj1pIa12sDgQNkhL_L6Xd4FkBxZBWswas/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9hcnR3/b3JrLndhbGxhcnRw/cmludHMuY29tL21l/ZGlhL2NhdGFsb2cv/Y2F0ZWdvcnkvd2Fs/bC1hcnQtcHJpbnRz/LWFuaW1hbC1hcnQt/MS5qcGc)' }}>
+        {/* You can replace the URL above with any image URL */}
+      </div>
     </div>
   );
 };
