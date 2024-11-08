@@ -38,23 +38,46 @@ function ExamPage() {
     const handleAnswerChange = (questionId, answer) => {
         setAnswers(prevAnswers => {
             const updatedAnswers = { ...prevAnswers };
-            if (testDetails.questions[currentQuestionIndex].answerType !== "single") {
-                // If multi-choice, toggle in array
-                if (updatedAnswers[questionId]) {
-                    if (updatedAnswers[questionId].includes(answer)) {
-                        updatedAnswers[questionId] = updatedAnswers[questionId].filter(a => a !== answer);
-                    } else {
-                        updatedAnswers[questionId] = [...updatedAnswers[questionId], answer];
-                    }
+            const isMultiChoice = testDetails.questions[currentQuestionIndex].answerType !== "single";
+            
+            if (isMultiChoice) {
+                // Toggle selection for multi-choice
+                updatedAnswers[questionId] = updatedAnswers[questionId] || [];
+                if (updatedAnswers[questionId].includes(answer)) {
+                    updatedAnswers[questionId] = updatedAnswers[questionId].filter(a => a !== answer);
                 } else {
-                    updatedAnswers[questionId] = [answer];
+                    updatedAnswers[questionId].push(answer);
                 }
             } else {
-                // For single-answer, replace the value
+                // Single answer, replace value
                 updatedAnswers[questionId] = answer;
             }
             return updatedAnswers;
         });
+    };
+
+    const calculateScore = () => {
+        let score = 0;
+        testDetails.questions.forEach(question => {
+            const userAnswer = answers[question.id];
+            const correctOptions = question.options.filter(option => option.isCorrect).map(option => option.text);
+
+            if (question.answerType === "single") {
+                if (userAnswer === correctOptions[0]) {
+                    score++;
+                }
+            } else if (question.answerType === "multi") {
+                if (JSON.stringify(userAnswer?.sort()) === JSON.stringify(correctOptions.sort())) {
+                    score++;
+                }
+            }
+        });
+        console.log(`Student scored: ${score} out of ${testDetails.questions.length}`);
+    };
+
+    const handleSubmit = () => {
+        calculateScore();
+        console.log("Submitting test with answers:", answers);  // Redirect to results or other post-exam page if required
     };
 
     const handleNext = () => {
@@ -67,10 +90,6 @@ function ExamPage() {
         if (currentQuestionIndex > 0) {
             setCurrentQuestionIndex(currentQuestionIndex - 1);
         }
-    };
-
-    const handleSubmit = () => {
-        console.log("Submitting test with answers:", answers);
     };
 
     const handleDialogOpen = () => setIsSubmitDialogOpen(true);

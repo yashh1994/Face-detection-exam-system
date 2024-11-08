@@ -6,6 +6,13 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+# class ExamData(Base):
+#     __tablename__ = 'ExamData'
+
+#     id = Column(Integer, primary_key=True)
+#     user_id = 
+
+
 class Test(Base):
     __tablename__ = 'Tests'
 
