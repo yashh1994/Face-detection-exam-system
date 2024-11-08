@@ -202,6 +202,7 @@ const Home = () => {
             color="primary"
             variant="contained"
             onClick={() => {
+              console.log(linkTestData)
               navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
             }}
           >
