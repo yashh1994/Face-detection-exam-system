@@ -15,7 +15,7 @@ const AppContent = () => {
   return (
     <>
       {/* Conditionally render the Header based on the current path */}
-      {location.pathname !== '/login' && <Header />}
+      {location.pathname !== '/login' && location.pathname !== "/exam" && <Header />}
       <Routes>
         <Route path="/home" element={<Home />} />
         <Route path="/" element={<Home />} />

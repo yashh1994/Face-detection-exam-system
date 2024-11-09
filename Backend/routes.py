@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 import numpy as np
 from DB.orm_model import Base, Test, User
-from AI.model_process import end_process,process_frame 
+from AI.model_process import end_process,process_frame,check_position_frame
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from Utils import encrypt_decrypt
@@ -222,7 +222,17 @@ def end_process_route():
     
 
 
-
+@app.route('/check-position', methods=['POST'])
+def check_position():
+    try:
+        data = request.json
+        frame = data.get("frame")
+        modi_frame = np.array(frame, dtype=np.uint8)
+        is_okay = check_position_frame(frame=modi_frame)
+        return jsonify({'is_in_position': is_okay}), 200
+    except Exception as e:
+        print(f"error is {str(e)}")
+        return jsonify({'error': str(e), 'is_in_position': False}), 500
 
 
 

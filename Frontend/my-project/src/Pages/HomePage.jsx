@@ -16,12 +16,14 @@ import {
   CircularProgress,
   IconButton,
 } from '@mui/material';
+import { useRef } from 'react';
 import { ContentCopy, Delete } from '@mui/icons-material'; // Import Delete icon
 import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../Auth/AuthContext';
 
+import Webcam from 'react-webcam';
 const Home = () => {
   const [loading, setLoading] = useState(true);
   const [tests, setTests] = useState([]);
@@ -33,6 +35,9 @@ const Home = () => {
   const [linkTestData, setLinkTestData] = useState(null);
   const { authToken } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [webcamDialogOpen,setWebcamDialogOpen] = useState(false)
+  const [borderColor, setBorderColor] = useState('gray');
+  const webcamRef = useRef(null);
 
   useEffect(() => {
     if (!authToken) {
@@ -40,6 +45,69 @@ const Home = () => {
     }
     fetchTests();
   }, [authToken, navigate]);
+
+  const handleWebcamStart = () => {
+    const intervalId = setInterval(async () => {
+        if (webcamRef.current) {
+            const frameMatrix = getFrameMatrix();
+            if (frameMatrix) {
+                try {
+                  const response = await fetch(`${config.apiUrl}/check-position`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      frame: frameMatrix,
+                    }),
+                  });
+                    setBorderColor(response.data.is_in_position ? 'green' : 'red');
+                } catch (error) {
+                  console.log(error)
+                    alert('Error sending frame:', error)
+                    setWebcamDialogOpen(false);
+                    return ()=>clearInterval(intervalId);
+                }
+            }
+        }
+    }, 1000);
+
+    return () => clearInterval(intervalId); // Clear interval on dialog close
+};
+
+
+const getFrameMatrix = () => {
+  const canvas = document.createElement('canvas');
+  const video = webcamRef.current.video;
+
+  if (video && video.videoWidth > 0 && video.videoHeight > 0) {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Get the image data (matrix) from the canvas
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const { data, width, height } = imageData;
+
+    // Convert image data to a 2D matrix of RGB values
+    const matrix = [];
+    for (let i = 0; i < height; i++) {
+      const row = [];
+      for (let j = 0; j < width; j++) {
+        const index = (i * width + j) * 4;
+        row.push([data[index], data[index + 1], data[index + 2]]);
+      }
+      matrix.push(row);
+    }
+    return matrix;
+  } else {
+    console.warn("Video feed not ready or has zero width/height.");
+    return null; 
+  }
+};
+
 
   const fetchTests = async () => {
     try {
@@ -87,6 +155,8 @@ const Home = () => {
     alert('Link copied to clipboard');
   };
 
+
+
   const handleDeleteTest = async (testId) => {
     console.log(`Deleting test with ID: ${testId}`);
     try {
@@ -100,6 +170,12 @@ const Home = () => {
       alert('Failed to delete test');
     }
   };
+
+  function handleStartTest(){
+    setWebcamDialogOpen(false);
+      console.log(linkTestData);
+      navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
+  }
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -181,6 +257,36 @@ const Home = () => {
           </Box>
         </>
       )}
+      {/* For the Cechking the Position dialog */}
+      <Dialog open={webcamDialogOpen} onClose={() => setWebcamDialogOpen(false)}>
+        <DialogTitle>Adjust Position</DialogTitle>
+        <DialogContent>
+          <Box
+            sx={{
+              border: `4px solid ${borderColor}`,
+              borderRadius: '10px',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+           { webcamDialogOpen && <Webcam
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+          width={320}
+          height={240}
+          onUserMedia={handleWebcamStart}
+        />}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setWebcamDialogOpen(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleStartTest} color="primary" variant="contained">
+            Start
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Dialog for test link input */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
@@ -231,9 +337,9 @@ const Home = () => {
             <Button
               color="primary"
               variant="contained"
-              onClick={() => {
-                console.log(linkTestData);
-                navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
+              onClick={()=>{
+                setTestDialogOpen(false)
+                setWebcamDialogOpen(true)
               }}
             >
               Start Test

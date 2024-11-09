@@ -81,12 +81,26 @@ class StudentLog:
 # print(frame)
 
 
+
+
+def check_position_frame(frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+    face_count = len(faces)
+    return face_count > 0
+
+
 def end_process(studentId):
     if studentId in student_logs:
         return student_logs[studentId].to_json()
+
     else:
-        return {"message": "Student log not found"}
+        print(f" student id for access {studentId} data is {student_logs}")
+        return {"message": f"Student log not found tried to acces {studentId}"}
     
+
+
 
 def process_frame(frame,studentId):
     if studentId not in student_logs:

@@ -3,6 +3,7 @@ import { Box, Typography, Button, Paper, Grid, FormControl, FormControlLabel, Ch
 import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Webcam from "react-webcam";
+import config from '../config';
 
 function ExamPage() {
     const webcamRef = React.useRef(null);
@@ -15,11 +16,40 @@ function ExamPage() {
     const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
     const testDetails = location.state?.testData;
     const [resultData,setResultData] = useState(null)
+    const [webcamActivate, setWebCamActivate] = useState(true)
+    const [isBlocking, setIsBlocking] = useState(true);
+
+    useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            e.preventDefault();
+            e.returnValue = ''; // Some browsers require returnValue to be set
+        };
+        if (isBlocking) {
+            window.addEventListener('beforeunload', handleBeforeUnload);
+        }
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [isBlocking]);
+
+    const handleSubmit = async () => {
+        setIsBlocking(false); // Allow navigation after submit
+        calculateScore();
+        setWebCamActivate(false);
+        await fetchEndProcess();
+        alert('Test submitted successfully!');
+        navigate('/home');
+    };
+
+    const handleDialogOpen = () => setIsSubmitDialogOpen(true);
+    const handleDialogClose = () => setIsSubmitDialogOpen(false);
+
 
     useEffect(() => {
         if (!authToken) navigate('/login');
         if (!testDetails) navigate('/home');
 
+        console.log(testDetails)
         const endTimeRemaining = Math.floor((new Date(testDetails.end_time).getTime() - new Date().getTime()) / 1000);
         const durationInSeconds = testDetails.duration * 60;
         const initialTimer = Math.min(endTimeRemaining, durationInSeconds);
@@ -33,7 +63,8 @@ function ExamPage() {
                 }
                 return prevTime - 1;
             });
-            captureFrame()
+            if (webcamActivate)
+                captureFrame()
         }, 1000);
 
         return () => {
@@ -76,17 +107,17 @@ function ExamPage() {
           const frameMatrix = getFrameMatrix();
           if (frameMatrix) {
             try {
-              await fetch(`${config.apiUrl}process_frame`, {
+              await fetch(`${config.apiUrl}/process_frame`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  student_id: authToken['id'], // Add an identifier for the student
+                  student_id: String(authToken['id'])+String(testDetails.open_link), // Add an identifier for the student
                   frame: frameMatrix,
                 }),
               });
-              setFrameCount((prevCount) => prevCount + 1);
+              console.log("Captured the frame send it. to a student: ",authToken['id'])
             } catch (error) {
               console.error('Error sending frame:', error);
             }
@@ -96,10 +127,11 @@ function ExamPage() {
 
     const fetchEndProcess = async () => {
         try {
-            const response = await fetch(`${config.apiUrl}end_process?student_id=${authToken['id']}`, {
+            const response = await fetch(`${config.apiUrl}/end_process?student_id=${String(authToken['id'])+String(testDetails.open_link)}`, {
             method: 'GET',
             });
             const data = await response.json();
+            console.log("monotoring data: ",data)
             setResultData(data);
         } catch (error) {
             console.error('Error fetching end process data:', error);
@@ -146,11 +178,6 @@ function ExamPage() {
         console.log(`Student scored: ${score} out of ${testDetails.questions.length}`);
     };
 
-    const handleSubmit = async () => {
-        calculateScore();
-        await fetchEndProcess();
-        console.log("Submitting test with answers:", answers);
-    };
 
     const handleNext = () => {
         if (currentQuestionIndex < testDetails.questions.length - 1) {
@@ -164,8 +191,6 @@ function ExamPage() {
         }
     };
 
-    const handleDialogOpen = () => setIsSubmitDialogOpen(true);
-    const handleDialogClose = () => setIsSubmitDialogOpen(false);
 
     const formattedTime = () => {
         const minutes = Math.floor(timer / 60);
@@ -274,12 +299,14 @@ function ExamPage() {
             borderRadius="8px"
             overflow="hidden"
         >
-            <Webcam
-                ref={webcamRef}
-                screenshotFormat="image/jpeg"
-                width={320}
-                height={240}
-            />
+            {webcamActivate && (
+        <Webcam
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+          width={320}
+          height={240}
+        />
+      )}
         </Box>
 
             {/* Submit Dialog */}
