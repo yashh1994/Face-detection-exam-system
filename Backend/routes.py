@@ -123,6 +123,33 @@ def get_my_test(user_id):
         session.close()
 
 
+@app.route('/delete-test/<user_id>/<open_link>', methods=['DELETE'])
+def delete_test(user_id, open_link):
+    session = Session()
+
+    try:
+        # Decrypt the open_link to get the test_id
+        test_id = encrypt_decrypt(open_link, action="decode")
+        
+        # Fetch the test from the database using the test_id
+        test = session.query(Test).filter(Test.id == test_id, Test.user_id == user_id).first()
+
+        # Check if the test exists and belongs to the user
+        if not test:
+            return jsonify({"error": "Test not found or not authorized to delete"}), 404
+        
+        # Delete the test
+        session.delete(test)
+        session.commit()
+
+        return jsonify({"message": "Test deleted successfully"}), 200
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
 
 #! Routes for Authentication
 @app.route('/signup', methods=['POST'])

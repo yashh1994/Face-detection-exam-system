@@ -16,7 +16,7 @@ import {
   CircularProgress,
   IconButton,
 } from '@mui/material';
-import { ContentCopy } from '@mui/icons-material';
+import { ContentCopy, Delete } from '@mui/icons-material'; // Import Delete icon
 import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +30,7 @@ const Home = () => {
   const [testDialogOpen, setTestDialogOpen] = useState(false);
   const [checking, setChecking] = useState(false);
   const [selectedTestData, setSelectedTestData] = useState(null);
-  const [linkTestData, setLinkTestData] = useState(null);  // Store test details from the open link
+  const [linkTestData, setLinkTestData] = useState(null);
   const { authToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -38,19 +38,20 @@ const Home = () => {
     if (!authToken) {
       navigate('/login');
     }
-    const fetchTests = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${config.apiUrl}/get-my-test/${authToken.id}`);
-        setTests(response.data);
-      } catch (error) {
-        console.error('Error fetching tests:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchTests();
   }, [authToken, navigate]);
+
+  const fetchTests = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${config.apiUrl}/get-my-test/${authToken.id}`);
+      setTests(response.data);
+    } catch (error) {
+      console.error('Error fetching tests:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -65,9 +66,9 @@ const Home = () => {
     setChecking(true);
     try {
       const response = await axios.get(`${config.apiUrl}/get-test/${testLink}`);
-      setLinkTestData(response.data);  // Save the fetched test details
-      setOpenDialog(false);  // Close the initial dialog
-      setTestDialogOpen(true);  // Open the test details dialog
+      setLinkTestData(response.data);
+      setOpenDialog(false);
+      setTestDialogOpen(true);
     } catch (error) {
       console.error('Invalid test link:', error);
       alert('Invalid test link. Please try again.');
@@ -84,6 +85,20 @@ const Home = () => {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert('Link copied to clipboard');
+  };
+
+  const handleDeleteTest = async (testId) => {
+    console.log(`Deleting test with ID: ${testId}`);
+    try {
+      // Make a delete request to the API
+      await axios.delete(`${config.apiUrl}/delete-test/${authToken['id']}/${testId}`);
+      // Update the tests state to remove the deleted test
+      alert('Test deleted successfully');
+      setTests(tests.filter((test) => test.id !== testId));
+    } catch (error) {
+      console.error('Error deleting test:', error);
+      alert('Failed to delete test');
+    }
   };
 
   return (
@@ -113,9 +128,24 @@ const Home = () => {
                       borderRadius: '15px',
                       boxShadow: 3,
                       cursor: 'pointer',
+                      position: 'relative',
                       '&:hover': { boxShadow: 6 },
                     }}
                   >
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent card click event
+                        handleDeleteTest(test.open_link);
+                      }}
+                      sx={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        color: 'red',
+                      }}
+                    >
+                      <Delete />
+                    </IconButton>
                     <CardContent>
                       <Typography variant="h5" gutterBottom>
                         {test.title}
@@ -198,16 +228,16 @@ const Home = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setTestDialogOpen(false)}>Close</Button>
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={() => {
-              console.log(linkTestData)
-              navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
-            }}
-          >
-            Start Test
-          </Button>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={() => {
+                console.log(linkTestData);
+                navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
+              }}
+            >
+              Start Test
+            </Button>
           </DialogActions>
         </Dialog>
       )}

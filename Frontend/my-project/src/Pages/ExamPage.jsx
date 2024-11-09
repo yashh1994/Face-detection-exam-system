@@ -2,8 +2,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Box, Typography, Button, Paper, Grid, FormControl, FormControlLabel, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, RadioGroup, Radio } from '@mui/material';
 import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Webcam from "react-webcam";
 
 function ExamPage() {
+    const webcamRef = React.useRef(null);
     const navigate = useNavigate();
     const location = useLocation();
     const { authToken } = useContext(AuthContext);
@@ -12,6 +14,7 @@ function ExamPage() {
     const [timer, setTimer] = useState(0);
     const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
     const testDetails = location.state?.testData;
+    const [resultData,setResultData] = useState(null)
 
     useEffect(() => {
         if (!authToken) navigate('/login');
@@ -30,10 +33,78 @@ function ExamPage() {
                 }
                 return prevTime - 1;
             });
+            captureFrame()
         }, 1000);
 
-        return () => clearInterval(countdown);
+        return () => {
+            clearInterval(countdown)
+        };
     }, [testDetails, authToken, navigate]);
+
+    useEffect(()=>{
+        console.log("Student Monitoring result is :",resultData)
+    },[resultData])
+    const getFrameMatrix = () => {
+        const canvas = document.createElement('canvas');
+        const video = webcamRef.current.video;
+    
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+    
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+        // Get the image data (matrix) from the canvas
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const { data, width, height } = imageData;
+    
+        // Convert image data to a 2D matrix of RGB values
+        const matrix = [];
+        for (let i = 0; i < height; i++) {
+          const row = [];
+          for (let j = 0; j < width; j++) {
+            const index = (i * width + j) * 4;
+            row.push([data[index], data[index + 1], data[index + 2]]);
+          }
+          matrix.push(row);
+        }
+        return matrix;
+      };
+
+    const captureFrame = async () => {
+        if (webcamRef.current) {
+          const frameMatrix = getFrameMatrix();
+          if (frameMatrix) {
+            try {
+              await fetch(`${config.apiUrl}process_frame`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  student_id: authToken['id'], // Add an identifier for the student
+                  frame: frameMatrix,
+                }),
+              });
+              setFrameCount((prevCount) => prevCount + 1);
+            } catch (error) {
+              console.error('Error sending frame:', error);
+            }
+          }
+        }
+      };
+
+    const fetchEndProcess = async () => {
+        try {
+            const response = await fetch(`${config.apiUrl}end_process?student_id=${authToken['id']}`, {
+            method: 'GET',
+            });
+            const data = await response.json();
+            setResultData(data);
+        } catch (error) {
+            console.error('Error fetching end process data:', error);
+        }
+    };
 
     const handleAnswerChange = (questionId, answer) => {
         setAnswers(prevAnswers => {
@@ -75,9 +146,10 @@ function ExamPage() {
         console.log(`Student scored: ${score} out of ${testDetails.questions.length}`);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         calculateScore();
-        console.log("Submitting test with answers:", answers);  // Redirect to results or other post-exam page if required
+        await fetchEndProcess();
+        console.log("Submitting test with answers:", answers);
     };
 
     const handleNext = () => {
@@ -192,6 +264,24 @@ function ExamPage() {
                 </Button>
             </Box>
 
+            <Box
+            position="fixed"
+            bottom={16}
+            right={16}
+            width={320}
+            height={240}
+            border="2px solid #007BFF"
+            borderRadius="8px"
+            overflow="hidden"
+        >
+            <Webcam
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                width={320}
+                height={240}
+            />
+        </Box>
+
             {/* Submit Dialog */}
             <Dialog open={isSubmitDialogOpen} onClose={handleDialogClose}>
                 <DialogTitle>Submit Test</DialogTitle>
@@ -203,6 +293,7 @@ function ExamPage() {
                     <Button onClick={handleSubmit} color="primary">Submit</Button>
                 </DialogActions>
             </Dialog>
+            
         </Box>
     );
 }
