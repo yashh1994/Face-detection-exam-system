@@ -35,9 +35,13 @@ const Home = () => {
   const [linkTestData, setLinkTestData] = useState(null);
   const { authToken } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [webcamDialogOpen,setWebcamDialogOpen] = useState(false)
+  const [webcamDialogOpen, setWebcamDialogOpen] = useState(false)
   const [borderColor, setBorderColor] = useState('gray');
   const webcamRef = useRef(null);
+  const [frameCount,setFrameCount] = useState(0)
+  const [intervalId, setIntervalId] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [testToDelete, setTestToDelete] = useState(null); // Store the test to delete
 
   useEffect(() => {
     if (!authToken) {
@@ -46,49 +50,59 @@ const Home = () => {
     fetchTests();
   }, [authToken, navigate]);
 
-  const handleWebcamStart = () => {
-    const intervalId = setInterval(async () => {
-        if (webcamRef.current) {
-            const frameMatrix = getFrameMatrix();
-            if (frameMatrix) {
-                try {
-                  const response = await fetch(`${config.apiUrl}/check-position`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      frame: frameMatrix,
-                    }),
-                  });
-                    setBorderColor(response.data.is_in_position ? 'green' : 'red');
-                } catch (error) {
-                  console.log(error)
-                    alert('Error sending frame:', error)
-                    setWebcamDialogOpen(false);
-                    return ()=>clearInterval(intervalId);
-                }
-            }
+  useEffect(() => {
+    if(webcamDialogOpen){
+      const id = setInterval(handleWebcamStart, 1000);
+      setIntervalId(id);
+      return () => clearInterval(id);
+    }else {
+      clearInterval(intervalId);
+    }
+  }, [frameCount,webcamDialogOpen]);
+
+  const handleWebcamStart = async () => {
+    console.log("Web cam start ...");
+      if (webcamRef.current) {
+        const frameMatrix = getFrameMatrix();
+        console.log("got the frame.");
+        if (frameMatrix) {
+          try {
+            const response = await axios.post(`${config.apiUrl}/check-position`, {
+              frame: frameMatrix,
+            }, {
+              headers: {
+              'Content-Type': 'application/json',
+              },
+            });
+  
+            console.log("Check Position: ",response.data.is_in_position);
+            setBorderColor(response.data.is_in_position == "True" ? 'green' : 'red');
+            setFrameCount((prevCount) => prevCount + 1);
+            } catch (error) {
+            console.log(error);
+            alert('Error sending frame:', error);
+            setWebcamDialogOpen(false);
+          }
         }
-    }, 1000);
+      }else{
+        console.log("first")
+      }
+  };
+  
 
-    return () => clearInterval(intervalId); // Clear interval on dialog close
-};
 
+  const getFrameMatrix = () => {
+    const canvas = document.createElement('canvas');
+    const video = webcamRef.current.video;
 
-const getFrameMatrix = () => {
-  const canvas = document.createElement('canvas');
-  const video = webcamRef.current.video;
-
-  if (video && video.videoWidth > 0 && video.videoHeight > 0) {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    const context = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
 
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     // Get the image data (matrix) from the canvas
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const { data, width, height } = imageData;
 
     // Convert image data to a 2D matrix of RGB values
@@ -102,11 +116,8 @@ const getFrameMatrix = () => {
       matrix.push(row);
     }
     return matrix;
-  } else {
-    console.warn("Video feed not ready or has zero width/height.");
-    return null; 
-  }
-};
+  };
+  
 
 
   const fetchTests = async () => {
@@ -157,24 +168,29 @@ const getFrameMatrix = () => {
 
 
 
-  const handleDeleteTest = async (testId) => {
-    console.log(`Deleting test with ID: ${testId}`);
+  const handleDeleteTest = (test) => {
+    setTestToDelete(test); // Set the test to delete
+    setDeleteDialogOpen(true); // Open confirmation dialog
+  };
+
+  const confirmDeleteTest = async () => {
+    console.log(testToDelete)
     try {
-      // Make a delete request to the API
-      await axios.delete(`${config.apiUrl}/delete-test/${authToken['id']}/${testId}`);
-      // Update the tests state to remove the deleted test
+      await axios.delete(`${config.apiUrl}/delete-test/${authToken['id']}/${testToDelete.open_link}`);
       alert('Test deleted successfully');
-      setTests(tests.filter((test) => test.id !== testId));
+      setTests(tests.filter((test) => test.id !== testToDelete.id));
     } catch (error) {
       console.error('Error deleting test:', error);
       alert('Failed to delete test');
+    } finally {
+      setDeleteDialogOpen(false); // Close confirmation dialog
     }
   };
 
-  function handleStartTest(){
+  function handleStartTest() {
     setWebcamDialogOpen(false);
-      console.log(linkTestData);
-      navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
+    console.log(linkTestData);
+    navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
   }
 
   return (
@@ -211,7 +227,7 @@ const getFrameMatrix = () => {
                     <IconButton
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent card click event
-                        handleDeleteTest(test.open_link);
+                        handleDeleteTest(test);
                       }}
                       sx={{
                         position: 'absolute',
@@ -257,6 +273,26 @@ const getFrameMatrix = () => {
           </Box>
         </>
       )}
+
+      {/* Delete Confirmation Dialog */}
+<Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Test</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete the test "{testToDelete?.title}"?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={confirmDeleteTest} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
       {/* For the Cechking the Position dialog */}
       <Dialog open={webcamDialogOpen} onClose={() => setWebcamDialogOpen(false)}>
         <DialogTitle>Adjust Position</DialogTitle>
@@ -269,13 +305,12 @@ const getFrameMatrix = () => {
               justifyContent: 'center',
             }}
           >
-           { webcamDialogOpen && <Webcam
-          ref={webcamRef}
-          screenshotFormat="image/jpeg"
-          width={320}
-          height={240}
-          onUserMedia={handleWebcamStart}
-        />}
+            {webcamDialogOpen && <Webcam
+        ref={webcamRef}
+        screenshotFormat="image/jpeg"
+        width={320}
+        height={240}
+      />}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -337,7 +372,7 @@ const getFrameMatrix = () => {
             <Button
               color="primary"
               variant="contained"
-              onClick={()=>{
+              onClick={() => {
                 setTestDialogOpen(false)
                 setWebcamDialogOpen(true)
               }}

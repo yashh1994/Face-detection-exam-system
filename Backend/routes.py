@@ -229,7 +229,8 @@ def check_position():
         frame = data.get("frame")
         modi_frame = np.array(frame, dtype=np.uint8)
         is_okay = check_position_frame(frame=modi_frame)
-        return jsonify({'is_in_position': is_okay}), 200
+        print(f"Position: {str(is_okay)}")
+        return {'is_in_position': str(is_okay)}, 200
     except Exception as e:
         print(f"error is {str(e)}")
         return jsonify({'error': str(e), 'is_in_position': False}), 500
