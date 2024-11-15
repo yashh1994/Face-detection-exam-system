@@ -3,7 +3,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import numpy as np
-from DB.orm_model import Base, Test, User
+from DB.orm_model import Base, Test, User, ExamData
 from AI.model_process import end_process,process_frame,check_position_frame
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -31,6 +31,63 @@ Session = sessionmaker(bind=engine)
 # print("Generated Key:", key)
 
 # Use the generated key here (replace with your actual key)
+
+#! Routes for Getting already done exams
+@app.route('/get-given-tests/<user_id>', methods=['GET'])
+def get_given_tests(user_id):
+    session = Session()
+    try:
+        completed_exams = session.query(ExamData).filter_by(user_id=user_id).all()
+        
+        if not completed_exams:
+            return jsonify({"error": "No completed exams found for this user"}), 404
+
+        given_tests_data = []
+        for exam in completed_exams:
+            test = session.query(Test).filter_by(id=exam.test_id).first()
+            if test:
+                given_tests_data.append({
+                "id": test.id,
+                "title": test.title,
+                "duration": test.duration,
+                "description": test.description,
+                "start_time": test.start_time,
+                "end_time": test.end_time,
+                "user_id": test.user_id,
+                "questions": test.questions,
+                "open_link":encrypt_decrypt(data=str(test.id),action="encode"),
+                "score":exam.score# Ensure `questions` is JSON serializable
+  # Ensure `questions` is JSON serializable
+            })
+
+        return jsonify(given_tests_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+#! Route for Adding Exam Data
+@app.route('/add-exam-data', methods=['POST'])
+def add_exam_data():
+    session = Session()
+    data = request.get_json()
+    user_id = data.get('user_id')
+    test_id = data.get('test_id')
+    score = data.get('score')
+
+    if not user_id or not test_id or score is None:
+        return jsonify({"error": "User ID, Test ID, and score are required."}), 400
+
+    try:
+        new_exam_data = ExamData(user_id=user_id, test_id=test_id, score=score)
+        session.add(new_exam_data)
+        session.commit()
+        return jsonify({"message": "Exam data added successfully."}), 201
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
 
 #! Routes for Adding the Tests
 @app.route('/add-test/<user_id>', methods=['POST'])
@@ -220,8 +277,6 @@ def end_process_route():
     student_id = request.args.get('student_id')
     return end_process(studentId=student_id)
     
-
-
 @app.route('/check-position', methods=['POST'])
 def check_position():
     try:
@@ -233,7 +288,7 @@ def check_position():
         return {'is_in_position': str(is_okay)}, 200
     except Exception as e:
         print(f"error is {str(e)}")
-        return jsonify({'error': str(e), 'is_in_position': False}), 500
+        return jsonify({'error': str(e), 'is_in_position': "False"}), 500
 
 
 

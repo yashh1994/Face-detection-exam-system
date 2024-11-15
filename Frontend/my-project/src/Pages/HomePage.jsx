@@ -189,6 +189,13 @@ const Home = () => {
 
   function handleStartTest() {
     setWebcamDialogOpen(false);
+    const currentTime = new Date();
+    const endTime = new Date((linkTestData || selectedTestData).end_time);
+
+    if (currentTime > endTime) {
+      alert('The test has expired and can no longer be taken.');
+      return;
+    }
     console.log(linkTestData);
     navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
   }

@@ -6,11 +6,25 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
-# class ExamData(Base):
-#     __tablename__ = 'ExamData'
+class ExamData(Base):
+    __tablename__ = 'ExamData'
 
-#     id = Column(Integer, primary_key=True)
-#     user_id = 
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String, ForeignKey('Users.id'), nullable=False)
+    test_id = Column(String, ForeignKey('Tests.id'), nullable=False)
+    data = Column(JSONB, nullable=False)
+    score = Column(String, nullable=False)
+    start_time = Column(String, nullable=False) 
+
+    def __init__(self, user_id, test_id, data, score, start_time):
+        self.user_id = user_id
+        self.test_id = test_id
+        self.data = data
+        self.score = score
+        self.start_time = start_time
+
+    def __repr__(self):
+        return f"<ExamData(user_id='{self.user_id}', test_id='{self.test_id}', score='{self.score}', start_time='{self.start_time}')>"
 
 
 class Test(Base):

@@ -18,7 +18,8 @@ function ExamPage() {
     const [resultData,setResultData] = useState(null)
     const [webcamActivate, setWebCamActivate] = useState(true)
     const [isBlocking, setIsBlocking] = useState(true);
-
+    let score = 0
+    const visitTime = new Date().toISOString();
     useEffect(() => {
         const handleBeforeUnload = (e) => {
             e.preventDefault();
@@ -125,18 +126,48 @@ function ExamPage() {
         }
       };
 
-    const fetchEndProcess = async () => {
+      const fetchEndProcess = async () => {
         try {
-            const response = await fetch(`${config.apiUrl}/end_process?student_id=${String(authToken['id'])+String(testDetails.open_link)}`, {
-            method: 'GET',
+            // Fetch monitoring data
+            const response = await fetch(`${config.apiUrl}/end_process?student_id=${String(authToken['id']) + String(testDetails.open_link)}`, {
+                method: 'GET',
             });
-            const data = await response.json();
-            console.log("monotoring data: ",data)
-            setResultData(data);
+            const monitoringData = await response.json();
+            console.log("Monitoring data: ", monitoringData);
+    
+            setResultData(monitoringData);
+    
+            const examData = {
+                user_id: authToken['id'],
+                test_id: testDetails.id,
+                score: score,
+                start_time: testDetails.start_time,
+                data: monitoringData
+            };
+
+            console.log("Exam data: ",examData)
+    
+            // Send exam completion data
+            const addExamResponse = await fetch(`${config.apiUrl}/add-exam-data`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(examData),
+            });
+    
+            if (!addExamResponse.ok) {
+                throw new Error('Failed to submit exam data');
+            }
+    
+            const addExamResult = await addExamResponse.json();
+            console.log("Exam data submission result:", addExamResult);
+    
         } catch (error) {
-            console.error('Error fetching end process data:', error);
+            console.error('Error in fetchEndProcess:', error);
         }
     };
+    
 
     const handleAnswerChange = (questionId, answer) => {
         setAnswers(prevAnswers => {
@@ -160,7 +191,7 @@ function ExamPage() {
     };
 
     const calculateScore = () => {
-        let score = 0;
+        score = 0;
         testDetails.questions.forEach(question => {
             const userAnswer = answers[question.id];
             const correctOptions = question.options.filter(option => option.isCorrect).map(option => option.text);
