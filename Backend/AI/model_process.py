@@ -48,7 +48,7 @@ class StudentLog:
             "Eyes Closed Ratio": f"{eyes_closed_ratio:.2f}%",
             "Total No Face Detected Time": f"{self.no_face_total_time:.2f} seconds",
             "Multi-Face Detection Time": f"{multi_face_duration:.2f} seconds",
-            "Max Faces Detected in Single Frame": self.max_faces_detected,
+            "Max Faces Detected in Single Frame": f"{self.max_faces_detected}",
         }
     
 # Load Haar Cascade models for face and eye detection

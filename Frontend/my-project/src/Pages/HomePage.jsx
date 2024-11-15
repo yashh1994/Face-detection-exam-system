@@ -24,7 +24,9 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../Auth/AuthContext';
 
 import Webcam from 'react-webcam';
+
 const Home = () => {
+  const [givenTests, setGivenTests] = useState([])
   const [loading, setLoading] = useState(true);
   const [tests, setTests] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -48,6 +50,7 @@ const Home = () => {
       navigate('/login');
     }
     fetchTests();
+    fetchGivenTests()
   }, [authToken, navigate]);
 
   useEffect(() => {
@@ -88,7 +91,6 @@ const Home = () => {
         console.log("first")
       }
   };
-  
 
 
   const getFrameMatrix = () => {
@@ -125,6 +127,18 @@ const Home = () => {
       setLoading(true);
       const response = await axios.get(`${config.apiUrl}/get-my-test/${authToken.id}`);
       setTests(response.data);
+    } catch (error) {
+      console.error('Error fetching tests:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchGivenTests = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${config.apiUrl}/get-given-tests/${authToken.id}`);
+      setGivenTests(response.data);
     } catch (error) {
       console.error('Error fetching tests:', error);
     } finally {
@@ -196,90 +210,177 @@ const Home = () => {
       alert('The test has expired and can no longer be taken.');
       return;
     }
+    const testId = (linkTestData || selectedTestData).id;
+    const hasGivenTest = givenTests.some(test => test.id === testId);
+
+    if (hasGivenTest) {
+      alert('You have already given this test.');
+      return;
+    }
     console.log(linkTestData);
     navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
   }
 
   return (
-    <Container sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom align="center">
-        User-Created Tests
-      </Typography>
+    <Container sx={{ mt: 4, background: 'linear-gradient(120deg, #e3f2fd, #f9fbe7)', p: 3, borderRadius: 3 }}>
+    <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', color: '#1a237e', mb: 4 }}>
+      User-Created Tests
+    </Typography>
 
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <>
-          {tests.length === 0 ? (
-            <Typography variant="h6" align="center" sx={{ color: 'gray' }}>
-              No tests available.
-            </Typography>
-          ) : (
-            <Grid container spacing={3}>
-              {tests.map((test) => (
-                <Grid item xs={12} sm={6} md={4} key={test.id}>
-                  <Card
-                    onClick={() => handleTestCardClick(test)}
+    {loading ? (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+        <CircularProgress />
+      </Box>
+    ) : (
+      <>
+        {tests.length === 0 ? (
+          <Typography variant="h6" align="center" sx={{ color: '#757575' }}>
+            No tests available.
+          </Typography>
+        ) : (
+          <Grid container spacing={4}>
+            {tests.map((test) => (
+              <Grid item xs={12} sm={6} md={4} key={test.id}>
+                <Card
+                  onClick={() => handleTestCardClick(test)}
+                  sx={{
+                    background: 'white',
+                    borderRadius: '15px',
+                     position: 'relative',
+                    boxShadow: 3,
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    cursor: 'pointer',
+                    '&:hover': { transform: 'scale(1.03)', boxShadow: 6 },
+                  }}
+                >
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click event
+                      handleDeleteTest(test);
+                    }}
                     sx={{
-                      background: '#e3f2fd',
-                      borderRadius: '15px',
-                      boxShadow: 3,
-                      cursor: 'pointer',
-                      position: 'relative',
-                      '&:hover': { boxShadow: 6 },
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      color: 'red',
+                      '&:hover': { color: '#d32f2f' },
                     }}
                   >
-                    <IconButton
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent card click event
-                        handleDeleteTest(test);
-                      }}
-                      sx={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        color: 'red',
-                      }}
-                    >
-                      <Delete />
-                    </IconButton>
-                    <CardContent>
-                      <Typography variant="h5" gutterBottom>
-                        {test.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {test.description}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Duration: {test.duration} minutes
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{
-                borderRadius: '20px',
-                padding: '10px 20px',
-                '&:hover': {
-                  backgroundColor: '#1976d2',
-                },
-              }}
-              onClick={handleOpenDialog}
-            >
-              Give Test
-            </Button>
-          </Box>
-        </>
-      )}
+                    <Delete />
+                  </IconButton>
+                  <CardContent>
+                    <Typography variant="h5" gutterBottom sx={{ color: '#1a237e' }}>
+                      {test.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {test.description}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Duration: {test.duration} minutes
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+
+        <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Button
+            variant="contained"
+            size="large"
+            sx={{
+              borderRadius: '30px',
+              px: 4,
+              py: 1.5,
+              background: 'linear-gradient(90deg, #1e88e5, #1976d2)',
+              color: 'white',
+              fontWeight: 'bold',
+              boxShadow: 3,
+              '&:hover': {
+                background: 'linear-gradient(90deg, #1565c0, #0d47a1)',
+                boxShadow: 6,
+              },
+            }}
+            onClick={()=>{
+              navigate('/create-test')
+            }}
+          >
+            Creat Test
+          </Button>
+        </Box>
+      </>
+    )}
+
+    <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', color: '#1a237e', mt: 6, mb: 4 }}>
+      Tests You've Given
+    </Typography>
+
+    {loading ? (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+        <CircularProgress />
+      </Box>
+    ) : (
+      <>
+        {givenTests.length === 0 ? (
+          <Typography variant="h6" align="center" sx={{ color: '#757575' }}>
+            No tests available.
+          </Typography>
+        ) : (
+          <Grid container spacing={4}>
+            {givenTests.map((test) => (
+              <Grid item xs={12} sm={6} md={4} key={test.id}>
+                <Card
+                  onClick={() => handleTestCardClick(test)}
+                  sx={{
+                    background: '#fce4ec',
+                    borderRadius: '15px',
+                    boxShadow: 3,
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    cursor: 'pointer',
+                    '&:hover': { transform: 'scale(1.03)', boxShadow: 6 },
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="h5" gutterBottom sx={{ color: '#880e4f' }}>
+                      {test.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {test.description}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Duration: {test.duration} minutes
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+        <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Button
+            variant="contained"
+            size="large"
+            sx={{
+              borderRadius: '30px',
+              px: 4,
+              py: 1.5,
+              background: 'linear-gradient(90deg, #1e88e5, #1976d2)',
+              color: 'white',
+              fontWeight: 'bold',
+              boxShadow: 3,
+              '&:hover': {
+                background: 'linear-gradient(90deg, #1565c0, #0d47a1)',
+                boxShadow: 6,
+              },
+            }}
+            onClick={handleOpenDialog}
+          >
+            Give Test
+          </Button>
+        </Box>
+      </>
+    )}
 
       {/* Delete Confirmation Dialog */}
 <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
@@ -389,6 +490,7 @@ const Home = () => {
           </DialogActions>
         </Dialog>
       )}
+
     </Container>
   );
 };

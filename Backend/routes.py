@@ -32,37 +32,65 @@ Session = sessionmaker(bind=engine)
 
 # Use the generated key here (replace with your actual key)
 
+
 #! Routes for Getting already done exams
-@app.route('/get-given-tests/<user_id>', methods=['GET'])
-def get_given_tests(user_id):
+@app.route('/get-exam-data/<open_link>', methods=['GET'])
+def get_exam_data(open_link):
     session = Session()
     try:
-        completed_exams = session.query(ExamData).filter_by(user_id=user_id).all()
-        
-        if not completed_exams:
-            return jsonify({"error": "No completed exams found for this user"}), 404
+        test_id = encrypt_decrypt(data=open_link,action="decode")
+        # Fetch the test details
+        test_details = session.query(Test).filter_by(id=test_id).first()
+        if not test_details:
+            print("Test not found")
+            return jsonify({"error": "Test not found"}), 404
 
-        given_tests_data = []
-        for exam in completed_exams:
-            test = session.query(Test).filter_by(id=exam.test_id).first()
-            if test:
-                given_tests_data.append({
-                "id": test.id,
-                "title": test.title,
-                "duration": test.duration,
-                "description": test.description,
-                "start_time": test.start_time,
-                "end_time": test.end_time,
-                "user_id": test.user_id,
-                "questions": test.questions,
-                "open_link":encrypt_decrypt(data=str(test.id),action="encode"),
-                "score":exam.score# Ensure `questions` is JSON serializable
-  # Ensure `questions` is JSON serializable
-            })
+        # Fetch all exam data for the test ID
+        exam_data = session.query(ExamData).filter_by(test_id=test_id).all()
+        if not exam_data:
+            print("no data found for this test ID")
+            return jsonify({"error": "No exam data found for this test ID"}), 404
 
-        return jsonify(given_tests_data), 200
+        # Fetch all associated users in a single query
+        user_ids = [data.user_id for data in exam_data]
+        users = session.query(User).filter(User.id.in_(user_ids)).all()
+        user_map = {user.id: user for user in users}  # Map user_id to user object
+
+        # Compile student details
+        students = []
+        for data in exam_data:
+            user = user_map.get(data.user_id)
+            if user:  # Ensure user exists
+                students.append({
+                    "student_details": {
+                        "id": user.id,
+                        "name": user.name, 
+                        "email":user.email # Assuming `User` has a `name` field
+                    },
+                    "score": data.score,
+                    "start_time": data.start_time.isoformat() if data.start_time else None,
+                    "monitoring_data": data.data  # Assuming `data` is JSON serializable
+                })
+
+        # Prepare the final response object
+        final_exam_obj = {
+            "test_details": {
+                "id": test_details.id,
+                "title": test_details.title,
+                "description": test_details.description,
+                "duration": test_details.duration,
+                "start_time": test_details.start_time.isoformat(),
+                "end_time": test_details.end_time.isoformat(),
+            },
+            "students": students,
+        }
+
+        return jsonify(final_exam_obj), 200
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Error: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
     finally:
         session.close()
 
@@ -74,17 +102,19 @@ def add_exam_data():
     user_id = data.get('user_id')
     test_id = data.get('test_id')
     score = data.get('score')
-
+    start_time = data.get('start_time')
+    exam_data = data['data']
     if not user_id or not test_id or score is None:
         return jsonify({"error": "User ID, Test ID, and score are required."}), 400
 
     try:
-        new_exam_data = ExamData(user_id=user_id, test_id=test_id, score=score)
+        new_exam_data = ExamData(user_id=user_id, test_id=test_id, score=score,start_time=start_time,data=exam_data)
         session.add(new_exam_data)
         session.commit()
         return jsonify({"message": "Exam data added successfully."}), 201
     except Exception as e:
         session.rollback()
+        print("Error: ",str(e))
         return jsonify({"error": str(e)}), 500
     finally:
         session.close()

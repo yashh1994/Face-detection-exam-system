@@ -1,27 +1,25 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-import os
-from dotenv import load_dotenv
-from DB.orm_model import Base, Test, User
-from routes import encrypt_decrypt
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import sessionmaker
+# import os
+# from dotenv import load_dotenv
+# from DB.orm_model import Base, Test, User
+# import enc
+# load_dotenv()
 
-load_dotenv()
-
-PG_DB_URL = os.getenv("PG_DATABASE_URL")
+# PG_DB_URL = os.getenv("PG_DATABASE_URL")
 
 
-engine = create_engine(PG_DB_URL)
-Base.metadata.create_all(engine)
+# engine = create_engine(PG_DB_URL)
+# Base.metadata.create_all(engine)
 
-Session = sessionmaker(bind=engine)
+# Session = sessionmaker(bind=engine)
 
-session = Session()
+# session = Session()
 
 
 # try:
 # except Exception as e:
 #     print("Error is : ",e)
-print("Open link: ",encrypt_decrypt(data="6",action="encode"))
 #! For the Insert the User
 # try:
 #     user1 = User(name="Yash",email="yash@gmail.com",password="12345")

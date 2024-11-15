@@ -45,6 +45,11 @@ function ExamPage() {
     const handleDialogOpen = () => setIsSubmitDialogOpen(true);
     const handleDialogClose = () => setIsSubmitDialogOpen(false);
 
+    useEffect(()=>{
+        if (!authToken) navigate('/login');
+        if (!testDetails) navigate('/home');
+        console.log("sjdjksdkjbskdjfbjksbdfkjsbdjkfbsdkfbskbf")
+    },[])
 
     useEffect(() => {
         if (!authToken) navigate('/login');
@@ -138,10 +143,10 @@ function ExamPage() {
             setResultData(monitoringData);
     
             const examData = {
-                user_id: authToken['id'],
-                test_id: testDetails.id,
-                score: score,
-                start_time: testDetails.start_time,
+                user_id: String(authToken['id']),
+                test_id: String(testDetails.id),
+                score: String(score),
+                start_time: String(visitTime),
                 data: monitoringData
             };
 

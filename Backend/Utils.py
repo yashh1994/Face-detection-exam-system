@@ -19,3 +19,5 @@ def encrypt_decrypt(data, action="encode"):
     else:
         raise ValueError("Action must be either 'encode' or 'decode'")
 
+print("Open link: ",encrypt_decrypt(data="gAAAAABnN01ikX-WwGWgXeCfe9TVHEZUzepHV75ienN250snGlMJI_ME5RCsfcyvEtf_BLXE-YhzB9GdZIeUUKSwlsd0x02b7Q==",action="decode"))
+
