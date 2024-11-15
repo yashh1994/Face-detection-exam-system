@@ -211,13 +211,16 @@ const Home = () => {
       return;
     }
     const testId = (linkTestData || selectedTestData).id;
-    const hasGivenTest = givenTests.some(test => test.id === testId);
-
+    const hasGivenTest = givenTests.some(test => test.test_id == testId);
+    
+    console.log(hasGivenTest)
+    console.log(testId)
+    console.log(givenTests)
     if (hasGivenTest) {
       alert('You have already given this test.');
       return;
     }
-    console.log(linkTestData);
+    console.log(linkTestData || selectedTestData);
     navigate('/exam', { state: { testData: linkTestData || selectedTestData } });
   }
 

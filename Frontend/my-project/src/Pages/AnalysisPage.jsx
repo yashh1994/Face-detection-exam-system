@@ -54,7 +54,8 @@ const AnalysisPage = () => {
   };
 
   const handleDeleteTest = (test) => {
-    console.log("Delete test:", test);
+    setTestToDelete(test); // Set the test to delete
+    setDeleteDialogOpen(true); // Open confirmation dialog
   };
 
   return (
@@ -101,21 +102,7 @@ const AnalysisPage = () => {
                         "&:hover": { transform: "scale(1.05)", boxShadow: "0 6px 16px rgba(0,0,0,0.2)" },
                       }}
                     >
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteTest(test);
-                        }}
-                        sx={{
-                          position: "absolute",
-                          top: 8,
-                          right: 8,
-                          color: "#d32f2f",
-                          "&:hover": { color: "#b71c1c" },
-                        }}
-                      >
-                        <Delete />
-                      </IconButton>
+                      
                       <CardContent>
                         <Typography variant="h6" gutterBottom sx={{ color: "#1a237e" }}>
                           {test.title}

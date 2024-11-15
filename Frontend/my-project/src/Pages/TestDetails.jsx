@@ -3,9 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
-  Grid,
   Card,
-  CardContent,
   Divider,
   CircularProgress,
   Table,
@@ -15,6 +13,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Grid,
 } from "@mui/material";
 import axios from "axios";
 import config from "../config";
@@ -22,26 +21,30 @@ import { AuthContext } from "../Auth/AuthContext";
 
 const TestDetailsPage = () => {
   const { open_link } = useParams();
-  const [testDetails, setTestDetails] = useState(null);
+  const [examData, setExamData] = useState(null);
   const [loading, setLoading] = useState(true);
   const { authToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(open_link)
     if (!authToken) {
       navigate("/login");
     } else {
-      fetchTestDetails();
+      fetchExamData();
     }
   }, [authToken, navigate]);
 
-  const fetchTestDetails = async () => {
+  const fetchExamData = async () => {
+    console.log(open_link)
     try {
-      const response = await axios.get(`${config.apiUrl}/get-test/${open_link}`);
-      setTestDetails(response.data);
+      const response = await axios.get(`${config.apiUrl}/get-exam-data/${open_link}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      setExamData(response.data);
     } catch (error) {
-      console.error("Error fetching test details:", error);
+      console.error("Error fetching exam data:", error);
     } finally {
       setLoading(false);
     }
@@ -55,85 +58,72 @@ const TestDetailsPage = () => {
     );
   }
 
-  if (!testDetails) {
+  if (!examData) {
     return (
       <Typography variant="h6" align="center" sx={{ mt: 4, color: "#757575" }}>
-        Test details not found.
+        Exam data not found.
       </Typography>
     );
   }
 
-  const { title, description, duration, start_time, end_time, questions } = testDetails;
+  const { test_details, students } = examData;
 
   return (
     <Box sx={{ padding: 4 }}>
       {/* Test Details Section */}
       <Typography variant="h4" gutterBottom>
-        Test Details
+        Exam Analysis
       </Typography>
       <Card sx={{ marginBottom: 4, padding: 3, boxShadow: 3 }}>
         <Typography variant="h5" gutterBottom>
-          {title}
+          {test_details.title}
         </Typography>
         <Typography variant="body1" color="text.secondary" gutterBottom>
-          {description}
+          {test_details.description}
         </Typography>
         <Divider sx={{ marginY: 2 }} />
         <Typography variant="body2">
-          <strong>Duration:</strong> {duration} minutes
+          <strong>Duration:</strong> {test_details.duration} minutes
         </Typography>
         <Typography variant="body2">
-          <strong>Start Time:</strong> {new Date(start_time).toLocaleString()}
+          <strong>Start Time:</strong> {new Date(test_details.start_time).toLocaleString()}
         </Typography>
         <Typography variant="body2">
-          <strong>End Time:</strong> {new Date(end_time).toLocaleString()}
+          <strong>End Time:</strong> {new Date(test_details.end_time).toLocaleString()}
         </Typography>
-        <Typography variant="body2" sx={{ marginTop: 2 }}>
-          <strong>Questions:</strong>
-        </Typography>
-        {questions.map((question, index) => (
-          <Box key={question.id} sx={{ marginY: 2 }}>
-            <Typography variant="subtitle1">
-              {index + 1}. {question.questionText}
-            </Typography>
-            {question.options.map((option, idx) => (
-              <Typography
-                key={idx}
-                variant="body2"
-                sx={{ color: option.isCorrect ? "green" : "inherit" }}
-              >
-                {option.text} {option.isCorrect ? "(Correct)" : ""}
-              </Typography>
-            ))}
-          </Box>
-        ))}
       </Card>
 
-      {/* Student Details Section */}
+      {/* Students Monitoring Data Table */}
       <Typography variant="h4" gutterBottom>
-        Students & Scores
+        Students & Monitoring Data
       </Typography>
-      <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
+      <TableContainer component={Paper} sx={{ boxShadow: 3, mt: 2 }}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell><strong>Student Name</strong></TableCell>
+              <TableCell><strong>Email</strong></TableCell>
               <TableCell><strong>Score</strong></TableCell>
-              <TableCell><strong>Start Time</strong></TableCell>
-              <TableCell><strong>Monitoring Data</strong></TableCell>
+              <TableCell><strong>Session Duration</strong></TableCell>
+              <TableCell><strong>Eyes Closed Ratio</strong></TableCell>
+              <TableCell><strong>Eyes Open Ratio</strong></TableCell>
+              <TableCell><strong>Face Detected Ratio</strong></TableCell>
+              <TableCell><strong>Multi-Face Detection Time</strong></TableCell>
+              <TableCell><strong>No Face Detected Ratio</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {testDetails.students.map((student) => (
-              <TableRow key={student.user_id}>
-                <TableCell>{student.name || "Unknown"}</TableCell>
+            {students.map((student) => (
+              <TableRow key={student.student_details.id}>
+                <TableCell>{student.student_details.name}</TableCell>
+                <TableCell>{student.student_details.email}</TableCell>
                 <TableCell>{student.score}</TableCell>
-                <TableCell>{new Date(student.start_time).toLocaleString()}</TableCell>
-                <TableCell>
-                  {student.monitoring_data
-                    ? student.monitoring_data.description
-                    : "No Data"}
-                </TableCell>
+                <TableCell>{student.monitoring_data["Session Duration"]}</TableCell>
+                <TableCell>{student.monitoring_data["Eyes Closed Ratio"]}</TableCell>
+                <TableCell>{student.monitoring_data["Eyes Open Ratio"]}</TableCell>
+                <TableCell>{student.monitoring_data["Face Detected Ratio"]}</TableCell>
+                <TableCell>{student.monitoring_data["Multi-Face Detection Time"]}</TableCell>
+                <TableCell>{student.monitoring_data["No Face Detected Ratio"]}</TableCell>
               </TableRow>
             ))}
           </TableBody>

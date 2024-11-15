@@ -68,7 +68,7 @@ def get_exam_data(open_link):
                         "email":user.email # Assuming `User` has a `name` field
                     },
                     "score": data.score,
-                    "start_time": data.start_time.isoformat() if data.start_time else None,
+                    "start_time": data.start_time,
                     "monitoring_data": data.data  # Assuming `data` is JSON serializable
                 })
 
@@ -79,8 +79,8 @@ def get_exam_data(open_link):
                 "title": test_details.title,
                 "description": test_details.description,
                 "duration": test_details.duration,
-                "start_time": test_details.start_time.isoformat(),
-                "end_time": test_details.end_time.isoformat(),
+                "start_time": test_details.start_time,
+                "end_time": test_details.end_time,
             },
             "students": students,
         }
@@ -88,7 +88,7 @@ def get_exam_data(open_link):
         return jsonify(final_exam_obj), 200
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
     finally:
@@ -118,6 +118,18 @@ def add_exam_data():
         return jsonify({"error": str(e)}), 500
     finally:
         session.close()
+
+
+
+
+
+
+
+
+
+
+
+
 
 #! Routes for Adding the Tests
 @app.route('/add-test/<user_id>', methods=['POST'])
@@ -223,8 +235,14 @@ def delete_test(user_id, open_link):
 
         # Check if the test exists and belongs to the user
         if not test:
+            print("tst not found")
             return jsonify({"error": "Test not found or not authorized to delete"}), 404
         
+        # Delete all exam data associated with the test
+        exam_data = session.query(ExamData).filter_by(test_id=test_id).all()
+        for data in exam_data:
+            session.delete(data)
+            
         # Delete the test
         session.delete(test)
         session.commit()
@@ -232,9 +250,59 @@ def delete_test(user_id, open_link):
         return jsonify({"message": "Test deleted successfully"}), 200
     except Exception as e:
         session.rollback()
+        print("Error: ",str(e))
         return jsonify({"error": str(e)}), 500
     finally:
         session.close()
+
+@app.route('/get-given-tests/<user_id>', methods=['GET'])
+def get_given_tests(user_id):
+    session = Session()
+    try:
+        # Query all ExamData entries for the given user
+        completed_exams = session.query(ExamData).filter_by(user_id=user_id).all()
+        
+        if not completed_exams:
+            return jsonify({"error": "No completed exams found for this user"}), 404
+
+        # Collect test information for each completed exam
+        given_tests_data = []
+        for exam in completed_exams:
+            # Fetch associated test details from the Test table
+            test = session.query(Test).filter_by(id=exam.test_id).first()
+            if test:
+                given_tests_data.append({
+                    "exam_data_id": exam.id,
+                    "test_id": test.id,
+                    "title": test.title,
+                    "duration": test.duration,
+                    "description": test.description,
+                    "start_time": test.start_time,
+                    "end_time": test.end_time,
+                    "user_id": test.user_id,
+                    "questions": test.questions,
+                    "exam_score": exam.score,
+                    "exam_start_time": exam.start_time,
+                    "exam_data": exam.data
+                })
+
+        return jsonify(given_tests_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
