@@ -69,19 +69,19 @@ const TestDetailsPage = () => {
   const { test_details, students } = examData;
 
   return (
-    <Box sx={{ padding: 4 }}>
+    <Box sx={{ padding: 4, backgroundColor: "#F4F6F8" }}>
       {/* Test Details Section */}
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom sx={{ color: "#2C3E50", fontWeight: "bold" }}>
         Exam Analysis
       </Typography>
-      <Card sx={{ marginBottom: 4, padding: 3, boxShadow: 3 }}>
-        <Typography variant="h5" gutterBottom>
+      <Card sx={{ marginBottom: 4, padding: 3, boxShadow: 3, backgroundColor: "#ECF0F1" }}>
+        <Typography variant="h5" gutterBottom sx={{ color: "#1ABC9C", fontWeight: "bold" }}>
           {test_details.title}
         </Typography>
         <Typography variant="body1" color="text.secondary" gutterBottom>
           {test_details.description}
         </Typography>
-        <Divider sx={{ marginY: 2 }} />
+        <Divider sx={{ marginY: 2, borderColor: "#1ABC9C" }} />
         <Typography variant="body2">
           <strong>Duration:</strong> {test_details.duration} minutes
         </Typography>
@@ -94,22 +94,22 @@ const TestDetailsPage = () => {
       </Card>
 
       {/* Students Monitoring Data Table */}
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom sx={{ color: "#2C3E50", fontWeight: "bold" }}>
         Students & Monitoring Data
       </Typography>
-      <TableContainer component={Paper} sx={{ boxShadow: 3, mt: 2 }}>
+      <TableContainer component={Paper} sx={{ boxShadow: 3, mt: 2, backgroundColor: "#FFFFFF" }}>
         <Table>
-          <TableHead>
+          <TableHead sx={{ backgroundColor: "#2980B9" }}>
             <TableRow>
-              <TableCell><strong>Student Name</strong></TableCell>
-              <TableCell><strong>Email</strong></TableCell>
-              <TableCell><strong>Score</strong></TableCell>
-              <TableCell><strong>Session Duration</strong></TableCell>
-              <TableCell><strong>Eyes Closed Ratio</strong></TableCell>
-              <TableCell><strong>Eyes Open Ratio</strong></TableCell>
-              <TableCell><strong>Face Detected Ratio</strong></TableCell>
-              <TableCell><strong>Multi-Face Detection Time</strong></TableCell>
-              <TableCell><strong>No Face Detected Ratio</strong></TableCell>
+              <TableCell sx={{ color: "#FFFFFF", fontWeight: "bold" }}>Student Name</TableCell>
+              <TableCell sx={{ color: "#FFFFFF", fontWeight: "bold" }}>Email</TableCell>
+              <TableCell sx={{ color: "#FFFFFF", fontWeight: "bold" }}>Score</TableCell>
+              <TableCell sx={{ color: "#FFFFFF", fontWeight: "bold" }}>Session Duration</TableCell>
+              <TableCell sx={{ color: "#FFFFFF", fontWeight: "bold" }}>Eyes Closed Ratio</TableCell>
+              <TableCell sx={{ color: "#FFFFFF", fontWeight: "bold" }}>Eyes Open Ratio</TableCell>
+              <TableCell sx={{ color: "#FFFFFF", fontWeight: "bold" }}>Face Detected Ratio</TableCell>
+              <TableCell sx={{ color: "#FFFFFF", fontWeight: "bold" }}>Multi-Face Detection Time</TableCell>
+              <TableCell sx={{ color: "#FFFFFF", fontWeight: "bold" }}>No Face Detected Ratio</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

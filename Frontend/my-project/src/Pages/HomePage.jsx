@@ -51,6 +51,7 @@ const Home = () => {
     }
     fetchTests();
     fetchGivenTests()
+    console.log(givenTests)
   }, [authToken, navigate]);
 
   useEffect(() => {
@@ -352,7 +353,7 @@ const Home = () => {
                       {test.description}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Duration: {test.duration} minutes
+                      Score: {test.exam_score} 
                     </Typography>
                   </CardContent>
                 </Card>

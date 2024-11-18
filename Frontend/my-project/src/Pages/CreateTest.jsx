@@ -1,5 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Box, Typography, TextField, Button, Paper, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Tooltip } from '@mui/material';
+import { 
+    Box, Typography, TextField, Button, Paper, Dialog, 
+    DialogTitle, DialogContent, DialogActions, IconButton, 
+    Tooltip, Divider, Grid 
+} from '@mui/material';
 import QuestionTemplate from './Components/QuestionTemplate';
 import { AddCircle, ContentCopy } from '@mui/icons-material';
 import axios from 'axios';
@@ -106,53 +110,159 @@ function CreateTest() {
     };
 
     return (
-        <Box sx={{ 
-            minHeight: '100vh', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            p: 4,
-            backgroundColor: '#f5f5f5',
-            overflow: 'hidden'
-        }}>
-            <Box sx={{ 
-                width: '100%', 
-                maxWidth: '70%', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: 3, 
-                overflowY: 'auto', 
-                height: 'calc(100vh - 80px)' 
-            }}>
-                <Paper elevation={3} sx={{ p: 4, borderRadius: 2, mb: 4 }}>
-                    <Box display="flex" justifyContent="space-between" mb={2}>
+        <Box
+            sx={{
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                px: 4,
+                py: 6,
+                backgroundColor: '#1c1c1c',
+            }}
+        >
+            <Box
+                sx={{
+                    width: '100%',
+                    maxWidth: '900px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3,
+                    overflowY: 'auto',
+                }}
+            >
+                <Paper elevation={3} sx={{ p: 4, borderRadius: 2, backgroundColor: '#2d2d2d' }}>
+                    <Box display="flex" justifyContent="space-between" mb={3}>
                         <Typography variant="h5" color="primary">Test Information</Typography>
                         <Button
                             variant="contained"
                             color="primary"
                             onClick={handleSubmit}
-                            sx={{
-                                marginLeft: 'auto',
-                                fontWeight: 'bold',
-                                height: 'fit-content'
-                            }}
+                            sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', '&:hover': { backgroundColor: '#1565c0' } }}
                         >
                             Create Test
                         </Button>
                     </Box>
-                    <Box display="flex" gap={2} mb={4}>
-                        <TextField label="Name" id="title" value={testInfo.title} onChange={handleTestInfoChange} fullWidth />
-                        <TextField label="Duration" id="duration" type="number" value={testInfo.duration} onChange={handleTestInfoChange} fullWidth />
+                    <Box display="flex" gap={2} mb={3}>
+                        <TextField
+                            label="Name"
+                            id="title"
+                            InputLabelProps={{ style: { color: 'white' } }}
+                            value={testInfo.title}
+                            onChange={handleTestInfoChange}
+                            fullWidth
+                            sx={{
+                                input: {
+                                    color: 'white',
+                                    backgroundColor: '#333',
+                                    borderRadius: '5px',
+                                    '&::placeholder': { color: '#aaa' },
+                                },
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': { borderColor: '#444' },
+                                    '&:hover fieldset': { borderColor: '#555' },
+                                }
+                            }}
+                        />
+                        <TextField
+                            label="Duration"
+                            id="duration"
+                            type="number"
+                            InputLabelProps={{ style: { color: 'white' } }}
+                            className='text-white'
+                            value={testInfo.duration}
+                            onChange={handleTestInfoChange}
+                            fullWidth
+                            sx={{
+                                input: {
+                                    color: 'white',
+                                    backgroundColor: '#333',
+                                    borderRadius: '5px',
+                                    '&::placeholder': { color: '#aaa' },
+                                },
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': { borderColor: '#444' },
+                                    '&:hover fieldset': { borderColor: '#555' },
+                                }
+                            }}
+                        />
                     </Box>
-                    <TextField label="Description" id="description" value={testInfo.description} onChange={handleTestInfoChange} fullWidth multiline rows={3} sx={{ mb: 3 }} />
-                    <Box display="flex" gap={2} mb={4}>
-                        <TextField id="startTime" type="datetime-local" value={testInfo.startTime} onChange={handleTestInfoChange} fullWidth />
-                        <TextField id="endTime" type="datetime-local" value={testInfo.endTime} onChange={handleTestInfoChange} fullWidth />
-                    </Box>
+                    <TextField
+                        label="Description"
+                        id="description"
+                        value={testInfo.description}
+                        onChange={handleTestInfoChange}
+                        fullWidth
+                        InputLabelProps={{ style: { color: 'white' } }}
+                        multiline
+                        rows={3}
+                        sx={{
+                            mb: 3,
+                            input: {
+                                color: 'white',
+                                backgroundColor: '#333',
+                                borderRadius: '5px',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                '& fieldset': { borderColor: '#444' },
+                                '&:hover fieldset': { borderColor: '#555' },
+                            }
+                        }}
+                    />
+                    <Box display="flex" justifyContent="space-between" gap={4} alignItems="center">
+    <Box display="flex" gap={2} alignItems="center" flex={1}>
+        <Typography variant="body1" color="white" sx={{ minWidth: '120px' }}>Valid Start Time:</Typography>
+        <TextField
+            id="startTime"
+            type="datetime-local"
+            value={testInfo.startTime}
+            onChange={handleTestInfoChange}
+            fullWidth
+            sx={{
+                input: {
+                    color: 'white',
+                    backgroundColor: '#333',
+                    borderRadius: '5px',
+                    '&::placeholder': { color: '#aaa' },
+                },
+                '& .MuiOutlinedInput-root': {
+                    '& fieldset': { borderColor: '#444' },
+                    '&:hover fieldset': { borderColor: '#555' },
+                }
+            }}
+        />
+    </Box>
+
+    <Box display="flex" gap={2} alignItems="center" flex={1}>
+        <Typography variant="body1" color="white" sx={{ minWidth: '120px' }}>Valid End Time:</Typography>
+        <TextField
+            id="endTime"
+            type="datetime-local"
+            value={testInfo.endTime}
+            onChange={handleTestInfoChange}
+            fullWidth
+            sx={{
+                input: {
+                    color: 'white',
+                    backgroundColor: '#333',
+                    borderRadius: '5px',
+                    '&::placeholder': { color: '#aaa' },
+                },
+                '& .MuiOutlinedInput-root': {
+                    '& fieldset': { borderColor: '#444' },
+                    '&:hover fieldset': { borderColor: '#555' },
+                }
+            }}
+        />
+    </Box>
+</Box>
+
                 </Paper>
 
-                <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-                    <Typography variant="h5" color="primary" gutterBottom>Questions</Typography>
+                <Paper elevation={3} sx={{ p: 4, borderRadius: 2, backgroundColor: '#2d2d2d' }}>
+                    <Typography variant="h5" color="primary" gutterBottom>
+                        Questions
+                    </Typography>
                     {questions.map((question, index) => (
                         <QuestionTemplate
                             key={question.id}
@@ -163,32 +273,39 @@ function CreateTest() {
                         />
                     ))}
                     <Box display="flex" justifyContent="center" mt={2}>
-                        <Button variant="contained" color="primary" startIcon={<AddCircle />} onClick={addQuestion} sx={{ fontWeight: 'bold' }}>Add Question</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<AddCircle />}
+                            onClick={addQuestion}
+                            sx={{ backgroundColor: '#1976d2', '&:hover': { backgroundColor: '#1565c0' } }}
+                        >
+                            Add Question
+                        </Button>
                     </Box>
                 </Paper>
 
-                {/* Success Dialog with Open Link */}
                 <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-                    <DialogTitle>Test Created Successfully!</DialogTitle>
-                    <DialogContent>
+                    <DialogTitle sx={{ backgroundColor: '#1976d2', color: 'white' }}>Test Created Successfully!</DialogTitle>
+                    <DialogContent sx={{ backgroundColor: '#2d2d2d', color: 'white' }}>
                         <Typography>Your test has been created. Here’s the open link:</Typography>
                         <Box display="flex" alignItems="center" mt={2}>
                             <TextField
                                 value={openLink}
-                                InputProps={{ readOnly: true }}
-                                variant="outlined"
+                                InputProps={{ readOnly: true, sx: { backgroundColor: '#333', color: 'white' } }}
                                 fullWidth
-                                sx={{ mr: 1 }}
                             />
                             <Tooltip title="Copy Link">
-                                <IconButton onClick={handleCopyLink} color="primary">
+                                <IconButton onClick={handleCopyLink} sx={{ color: 'white' }}>
                                     <ContentCopy />
                                 </IconButton>
                             </Tooltip>
                         </Box>
                     </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => setDialogOpen(false)} color="primary">Close</Button>
+                    <DialogActions sx={{ backgroundColor: '#2d2d2d' }}>
+                        <Button onClick={() => setDialogOpen(false)} sx={{ color: '#1976d2' }}>
+                            Close
+                        </Button>
                     </DialogActions>
                 </Dialog>
             </Box>

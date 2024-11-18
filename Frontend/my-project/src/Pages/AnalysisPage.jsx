@@ -59,22 +59,44 @@ const AnalysisPage = () => {
   };
 
   return (
-    <Box sx={{ padding: 4, backgroundColor: "#f4f6f8", minHeight: "100vh" }}>
+    <Box className="bg-gradient-to-br from-gray-900 to-black" sx={{ padding: 4, minHeight: "100vh" }}>
       <Container maxWidth="lg">
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold", color: "#1976d2" }}>
-          Analysis Dashboard
+        <Typography variant="h3" align="center" sx={{ color: "#ffffff", fontWeight: "bold", mb: 4 }}>
+          Analysis Page
         </Typography>
-        <TextField
+
+        {/* <TextField
           fullWidth
           variant="outlined"
           placeholder="Search tests by title"
           value={searchQuery}
+          style={{ backgroundColor: "grey" }}
           onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ marginBottom: 3, backgroundColor: "white", borderRadius: "8px" }}
-        />
+          sx={{
+            marginBottom: 3,
+            backgroundColor: "#ffffff",
+            borderRadius: "12px",
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": { borderColor: "#42a5f5" },
+              "&:hover fieldset": { borderColor: "#1976d2" },
+            },
+          }}
+        /> */}
+
+        <input
+            type="text"
+            id="name"
+            name="name"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}            
+            className="mb-8 w-full px-4 py-4 rounded-lg bg-gray-900 text-white border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Search tests by title"
+            required
+          />
+
         {loading ? (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
-            <CircularProgress />
+            <CircularProgress color="primary" />
           </Box>
         ) : (
           <>
@@ -82,7 +104,12 @@ const AnalysisPage = () => {
               <Typography
                 variant="h6"
                 align="center"
-                sx={{ color: "#757575", fontStyle: "italic" }}
+                sx={{
+                  color: "#b0bec5",
+                  fontStyle: "italic",
+                  fontWeight: "bold",
+                  marginTop: 5,
+                }}
               >
                 No tests available. Start creating one!
               </Typography>
@@ -93,24 +120,27 @@ const AnalysisPage = () => {
                     <Card
                       onClick={() => handleCardClick(test)}
                       sx={{
-                        background: "white",
+                        background: "#1e1e1e",
                         borderRadius: "12px",
                         position: "relative",
                         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                         transition: "transform 0.2s, box-shadow 0.2s",
                         cursor: "pointer",
-                        "&:hover": { transform: "scale(1.05)", boxShadow: "0 6px 16px rgba(0,0,0,0.2)" },
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                          boxShadow: "0 6px 16px rgba(0,0,0,0.3)",
+                        },
+                        borderLeft: `8px solid #42a5f5`, // Adjusted to match the design theme
                       }}
                     >
-                      
                       <CardContent>
-                        <Typography variant="h6" gutterBottom sx={{ color: "#1a237e" }}>
+                        <Typography variant="h6" sx={{ color: "#42a5f5" }} gutterBottom>
                           {test.title}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        <Typography variant="body2" className="text-gray-400" sx={{ mb: 1 }}>
                           {test.description}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" className="text-gray-400">
                           Duration: {test.duration} minutes
                         </Typography>
                       </CardContent>
@@ -119,21 +149,18 @@ const AnalysisPage = () => {
                 ))}
               </Grid>
             )}
+
             <Box sx={{ textAlign: "center", mt: 5 }}>
               <Button
                 variant="contained"
-                size="large"
+                color="primary"
                 sx={{
-                  borderRadius: "30px",
-                  px: 4,
-                  py: 1.5,
-                  background: "linear-gradient(90deg, #42a5f5, #1e88e5)",
-                  color: "white",
-                  fontWeight: "bold",
-                  boxShadow: 3,
+                  padding: "12px 24px",
+                  fontSize: "16px",
+                  borderRadius: "20px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                   "&:hover": {
-                    background: "linear-gradient(90deg, #1976d2, #1565c0)",
-                    boxShadow: 6,
+                    boxShadow: "0 6px 16px rgba(0,0,0,0.3)",
                   },
                 }}
                 onClick={() => navigate("/create-test")}
