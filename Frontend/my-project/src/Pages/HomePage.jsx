@@ -15,9 +15,10 @@ import {
   TextField,
   CircularProgress,
   IconButton,
+  Tooltip,
 } from '@mui/material';
 import { useRef } from 'react';
-import { ContentCopy, Delete } from '@mui/icons-material'; // Import Delete icon
+import { Close, ContentCopy, Delete } from '@mui/icons-material'; // Import Delete icon
 import axios from 'axios';
 import config from '../config';
 import { useNavigate } from 'react-router-dom';
@@ -44,7 +45,7 @@ const Home = () => {
   const [intervalId, setIntervalId] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [testToDelete, setTestToDelete] = useState(null); // Store the test to delete
-
+  const [isGivenTest, setIsGivenTest] = useState(false);
   useEffect(() => {
     if (!authToken) {
       navigate('/login');
@@ -182,6 +183,7 @@ const Home = () => {
   };
 
 
+  
 
   const handleDeleteTest = (test) => {
     setTestToDelete(test); // Set the test to delete
@@ -246,7 +248,10 @@ const Home = () => {
             {tests.map((test) => (
               <Grid item xs={12} sm={6} md={4} key={test.id}>
                 <Card
-                  onClick={() => handleTestCardClick(test)}
+                  onClick={() => {
+                    setIsGivenTest(false);
+                    handleTestCardClick(test);
+                  }}
                   sx={{
                     background: 'white',
                     borderRadius: '15px',
@@ -335,7 +340,10 @@ const Home = () => {
             {givenTests.map((test) => (
               <Grid item xs={12} sm={6} md={4} key={test.id}>
                 <Card
-                  onClick={() => handleTestCardClick(test)}
+                  onClick={() => {
+                    setIsGivenTest(true);
+                    handleTestCardClick(test);
+                  }}
                   sx={{
                     background: '#fce4ec',
                     borderRadius: '15px',
@@ -464,36 +472,90 @@ const Home = () => {
       </Dialog>
 
       {/* Test Details Dialog */}
+      
       {(selectedTestData || linkTestData) && (
-        <Dialog open={testDialogOpen} onClose={() => setTestDialogOpen(false)}>
-          <DialogTitle>{(selectedTestData || linkTestData).title}</DialogTitle>
-          <DialogContent>
-            <Typography>Description: {(selectedTestData || linkTestData).description}</Typography>
-            <Typography>Duration: {(selectedTestData || linkTestData).duration} minutes</Typography>
-            <Typography>Start Time: {(selectedTestData || linkTestData).start_time}</Typography>
-            <Typography>End Time: {(selectedTestData || linkTestData).end_time}</Typography>
-            <Box display="flex" alignItems="center">
-              <Typography>Open Link: {(selectedTestData || linkTestData).open_link}</Typography>
-              <IconButton onClick={() => copyToClipboard((selectedTestData || linkTestData).open_link)}>
-                <ContentCopy />
-              </IconButton>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setTestDialogOpen(false)}>Close</Button>
-            <Button
-              color="primary"
-              variant="contained"
-              onClick={() => {
-                setTestDialogOpen(false)
-                setWebcamDialogOpen(true)
-              }}
-            >
-              Start Test
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
+  <Dialog
+    open={testDialogOpen}
+    onClose={() => setTestDialogOpen(false)}
+    fullWidth
+    maxWidth="sm"
+  >
+    <DialogTitle>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h6" component="span">
+          {(selectedTestData || linkTestData).title}
+        </Typography>
+        <Box display="flex" alignItems="center" gap={1}>
+          {
+            !isGivenTest && (<Button
+            variant="outlined"
+            size="small"
+            color="primary"
+            onClick={() => copyToClipboard((selectedTestData || linkTestData).open_link)}
+            startIcon={<ContentCopy />}
+          >
+            Copy Link
+          </Button>)}
+          <IconButton onClick={() => setTestDialogOpen(false)}>
+            <Close />
+          </IconButton>
+        </Box>
+      </Box>
+    </DialogTitle>
+    <DialogContent dividers>
+      <Box display="flex" flexDirection="column" gap={2}>
+        <Typography variant="body1">
+          <strong>Description:</strong> {(selectedTestData || linkTestData).description}
+        </Typography>
+        <Typography variant="body1">
+          <strong>Duration:</strong> {(selectedTestData || linkTestData).duration} minutes
+        </Typography>
+        <Typography variant="body1">
+          <strong>Start Time:</strong> {(selectedTestData || linkTestData).start_time}
+        </Typography>
+        <Typography variant="body1">
+          <strong>End Time:</strong> {(selectedTestData || linkTestData).end_time}
+        </Typography>
+        {isGivenTest && (<Typography variant="body1">
+          <strong>Score :</strong> {(selectedTestData || linkTestData).exam_score}
+        </Typography>)}
+        {!isGivenTest && (<Box
+          display="flex"
+          alignItems="center"
+          bgcolor="background.paper"
+          borderRadius={1}
+          padding={1}
+          boxShadow={1}
+        >
+          <Typography variant="body1">
+            <strong>Open Link:</strong> {(selectedTestData || linkTestData).open_link}
+          </Typography>
+        </Box>)}
+      </Box>
+    </DialogContent>
+    <DialogActions sx={{ padding: "16px" }}>
+      <Button
+        onClick={() => setTestDialogOpen(false)}
+        variant="outlined"
+        color="secondary"
+      >
+        Close
+      </Button>
+      {!isGivenTest && (<Button
+        onClick={() => {
+          setTestDialogOpen(false);
+          setWebcamDialogOpen(true);
+        }}
+        variant="contained"
+        color="primary"
+      >
+        Start Test
+      </Button>)}
+    </DialogActions>
+  </Dialog>
+)}
+
+
 
     </Container>
   );

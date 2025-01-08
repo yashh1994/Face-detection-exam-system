@@ -98,7 +98,7 @@ function CreateTest() {
                 },
             });
             setOpenLink(response.data.open_link);
-            setDialogOpen(true);
+            navigate('/');
         } catch (error) {
             console.error("An error occurred during test creation:", error);
         }
@@ -188,12 +188,13 @@ function CreateTest() {
                         />
                     </Box>
                     <TextField
+                        InputLabelProps={{ style: { color: 'white' } }}
+                        inputProps={{ style: { color: 'white' } }}
                         label="Description"
                         id="description"
                         value={testInfo.description}
                         onChange={handleTestInfoChange}
                         fullWidth
-                        InputLabelProps={{ style: { color: 'white' } }}
                         multiline
                         rows={3}
                         sx={{
