@@ -37,9 +37,36 @@ Revolutionizing online exams with **AI-driven webcam monitoring**, customizable 
 
 ### **Backend Setup**  
 1. Navigate to the backend folder:  
-   ```bash
-   cd backend
+    ```bash
+    cd Backend
+    ```
 
+2. Install the required Python dependencies:  
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3. Run the backend application:  
+    ```bash
+    python routes.py
+    ```
+
+### **Frontend Setup**  
+### **Frontend Setup**  
+1. Navigate to the frontend folder:  
+    ```bash
+    cd .\Frontend\my-project\
+    ```
+
+2. Install the required Node.js dependencies:  
+    ```bash
+    npm install
+    ```
+
+3. Run the frontend application:  
+    ```bash
+    npm run dev
+    ```
 
 
 ## 👨💻 **About Me**  
