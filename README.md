@@ -82,8 +82,8 @@ Hi! I'm **Your Name**, a full-stack developer with a passion for bridging AI inn
 
 📬 **Get in Touch**  
 Let's collaborate or chat about tech!  
-- 📧 **Email**: [your.email@domain.com](mailto:your.email@domain.com)  
-- 💼 **LinkedIn**: [Your Profile](https://linkedin.com/in/yourprofile)  
-- 🐙 **GitHub**: [Your Handle](https://github.com/yourhandle)  
+- 📧 **Email**: [fadaduyash1994@gmail.com](fadaduyash1994@gmail.com)  
+- 💼 **LinkedIn**: [Yash](https://www.linkedin.com/in/yash-fadadu-aba61327a)  
+- 🐙 **GitHub**: [Yash - Github](https://github.com/yashh1994)  
 
 </div>
