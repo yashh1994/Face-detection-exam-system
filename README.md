@@ -73,7 +73,7 @@ Revolutionizing online exams with **AI-driven webcam monitoring**, customizable 
 <div align="left" style="color: #000080;">
 
 🔭 **Who Am I?**  
-Hi! I'm **Your Name**, a full-stack developer with a passion for bridging AI innovation with practical applications. I thrive on building systems that solve real-world challenges, especially in education and productivity tech.  
+Hi! I'm **Yash Fadadu**, a full-stack developer with a passion for bridging AI innovation with practical applications. I thrive on building systems that solve real-world challenges, especially in education and productivity tech.  
 
 🚀 **Skills & Interests**  
 - 🔗 **Tech Stack**: React, Python, OpenCV, Flask, PostgreSQL  
@@ -83,7 +83,7 @@ Hi! I'm **Your Name**, a full-stack developer with a passion for bridging AI inn
 📬 **Get in Touch**  
 Let's collaborate or chat about tech!  
 - 📧 **Email**: [fadaduyash1994@gmail.com](fadaduyash1994@gmail.com)  
-- 💼 **LinkedIn**: [Yash](https://www.linkedin.com/in/yash-fadadu-aba61327a)  
+- 💼 **LinkedIn**: [Yash - LinkdeIn](https://www.linkedin.com/in/yash-fadadu-aba61327a)  
 - 🐙 **GitHub**: [Yash - Github](https://github.com/yashh1994)  
 
 </div>
