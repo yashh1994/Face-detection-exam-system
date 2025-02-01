@@ -143,7 +143,7 @@ const About = () => {
       >
         <h2 className="text-3xl font-bold text-blue-500 mb-4">About the Developer</h2>
         <p className="text-lg text-gray-300 mb-6">
-          Hi, I'm [Your Name], a passionate developer skilled in React.js, Python Flask, and AI technologies. I designed and built this project from the ground up, focusing on delivering a seamless user experience with cutting-edge technology.
+          Hi, I'm Yash Fadadu, a passionate developer skilled in React.js, Python Flask, and AI technologies. I designed and built this project from the ground up, focusing on delivering a seamless user experience with cutting-edge technology.
         </p>
         <p className="text-lg text-gray-300 mb-6">
           I enjoy solving real-world problems with code, continuously learning new technologies, and creating impactful projects. Feel free to explore the code or reach out for collaboration!

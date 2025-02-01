@@ -178,6 +178,7 @@ def get_test(open_link):
             "end_time": test.end_time,
             "user_id": test.user_id,
             "questions": test.questions,
+            "open_link": encrypt_decrypt(data=str(test.id),action="encode")# Ensure `questions` is JSON serializable
         }
         
         return jsonify(test_data), 200
@@ -211,10 +212,6 @@ def get_my_test(user_id):
             }
             for test in tests
         ]
-
-        
-
-        
         return jsonify(tests_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

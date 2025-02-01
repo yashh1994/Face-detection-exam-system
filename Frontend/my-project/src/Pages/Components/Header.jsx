@@ -48,7 +48,7 @@ const Header = () => {
             color: '#fff', // White text for the app name
           }}
         >
-          MyApp
+          AI Powered Test Platform
         </Typography>
 
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>

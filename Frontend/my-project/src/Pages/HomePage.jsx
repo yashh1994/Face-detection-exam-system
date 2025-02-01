@@ -208,9 +208,9 @@ const Home = () => {
     setWebcamDialogOpen(false);
     const currentTime = new Date();
     const endTime = new Date((linkTestData || selectedTestData).end_time);
-
-    if (currentTime > endTime) {
-      alert('The test has expired and can no longer be taken.');
+    const startTime = new Date((linkTestData || selectedTestData).start_time);
+    if (currentTime < startTime || currentTime > endTime) {
+      alert('The test is not available at this time.');
       return;
     }
     const testId = (linkTestData || selectedTestData).id;
@@ -230,7 +230,7 @@ const Home = () => {
   return (
     <Container sx={{ mt: 4, background: 'linear-gradient(120deg, #e3f2fd, #f9fbe7)', p: 3, borderRadius: 3 }}>
     <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', color: '#1a237e', mb: 4 }}>
-      User-Created Tests
+      Created Tests
     </Typography>
 
     {loading ? (
@@ -322,7 +322,7 @@ const Home = () => {
     )}
 
     <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', color: '#1a237e', mt: 6, mb: 4 }}>
-      Tests You've Given
+      Given Tests
     </Typography>
 
     {loading ? (
@@ -527,7 +527,7 @@ const Home = () => {
           padding={1}
           boxShadow={1}
         >
-          <Typography variant="body1">
+          <Typography variant="body1 break-all">
             <strong>Open Link:</strong> {(selectedTestData || linkTestData).open_link}
           </Typography>
         </Box>)}
@@ -543,6 +543,12 @@ const Home = () => {
       </Button>
       {!isGivenTest && (<Button
         onClick={() => {
+          const currentTime = new Date();
+          const endTime = new Date((linkTestData || selectedTestData).end_time);
+          if (currentTime > endTime) {
+            alert('The test has expired and can no longer be taken.');
+            return;
+          }
           setTestDialogOpen(false);
           setWebcamDialogOpen(true);
         }}
@@ -554,8 +560,6 @@ const Home = () => {
     </DialogActions>
   </Dialog>
 )}
-
-
 
     </Container>
   );
