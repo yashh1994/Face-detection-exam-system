@@ -11,6 +11,8 @@ import config from '../config';
 import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import mammoth from 'mammoth';
+import CircularProgress from '@mui/material/CircularProgress';
+
 function CreateTest() {
     const [testInfo, setTestInfo] = useState({
         title: '',
@@ -24,13 +26,13 @@ function CreateTest() {
     const [questions, setQuestions] = useState([]);
     const [openLink, setOpenLink] = useState('');
     const [dialogOpen, setDialogOpen] = useState(false);
-
+    const [uploadDocButtonLoading, setUploadDocButtonLoading] = useState(true);
     useEffect(() => {
         if (!authToken) {
             navigate('/login');
         }
     }, [authToken, navigate]);
-    
+
 
     const handleTestInfoChange = (e) => {
         setTestInfo({ ...testInfo, [e.target.id]: e.target.value });
@@ -43,6 +45,15 @@ function CreateTest() {
             { id: Date.now(), questionText: '', answerType: 'single', options: [] }
         ]);
     };
+
+    const addQuestionFromDoc = (docQuestions) => {
+        docQuestions.forEach(docQuestion => {
+            setQuestions(prevQuestions => [
+                ...prevQuestions,
+                { id: Date.now(), questionText: docQuestion.questionText, answerType: docQuestion.answerType, options: docQuestion.options }
+            ]);
+        });
+    }
 
 
     const updateQuestion = (id, updatedQuestion) => {
@@ -117,6 +128,7 @@ function CreateTest() {
 
 
     const handleFileUpload = async (event) => {
+        setUploadDocButtonLoading(true);
         const file = event.target.files[0];
         if (!file) return;
 
@@ -126,13 +138,24 @@ function CreateTest() {
 
             try {
                 const extractedText = await mammoth.extractRawText({ arrayBuffer });
-                console.log("Extracted Text: ",extractedText);
+                console.log("Extracted Text: ", extractedText.value);
+
+                const response = await axios.post(`${config.apiUrl}/upload-ai-doc`, {
+                    content: extractedText.value
+                }, {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                console.log("Get the response and formatted question: ", response);
+                if (response.data) {
+                    addQuestionFromDoc(response.data);
+                }
             } catch (error) {
                 console.error("Error extracting text:", error);
             }
         };
-
         reader.readAsArrayBuffer(file);
+        setUploadDocButtonLoading(false);
     };
 
     const handleUploadDoc = () => {
@@ -174,9 +197,14 @@ function CreateTest() {
                                 variant="contained"
                                 color="primary"
                                 onClick={handleUploadDoc}
-                                sx={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: '#1976d2', '&:hover': { backgroundColor: '#1565c0' } }}
+                                sx={{
+                                    marginRight: '10px',
+                                    fontWeight: 'bold',
+                                    backgroundColor: '#1976d2',
+                                    '&:hover': { backgroundColor: '#1565c0' },
+                                }}
                             >
-                                Upload Doc
+                                Upload docs
                             </Button>
                             <Button
                                 variant="contained"
@@ -306,9 +334,16 @@ function CreateTest() {
                 </Paper>
 
                 <Paper elevation={3} sx={{ p: 4, borderRadius: 2, backgroundColor: '#2d2d2d' }}>
+                    <div>
                     <Typography variant="h5" color="primary" gutterBottom>
                         Questions
                     </Typography>
+                    {uploadDocButtonLoading && (
+                        <Box display="flex" justifyContent="center" mb={2}>
+                            <CircularProgress color="primary" />
+                        </Box>
+                    )}
+                    </div>
                     {questions.map((question, index) => (
                         <QuestionTemplate
                             key={question.id}

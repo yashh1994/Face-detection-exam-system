@@ -8,19 +8,18 @@ from AI.model_process import end_process,process_frame,check_position_frame
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from Utils import encrypt_decrypt
-
+from upload_Ai import get_gemini_response
 
 # Example of getting a variable from the .env file
-
 load_dotenv()
 app = Flask(__name__)   
 CORS(app)
 
 
 PG_DB_URL = os.getenv('PG_DATABASE_URL')
-
 engine = create_engine(PG_DB_URL)
 Base.metadata.create_all(engine)
+
 
 Session = sessionmaker(bind=engine)
 
@@ -94,6 +93,7 @@ def get_exam_data(open_link):
     finally:
         session.close()
 
+
 #! Route for Adding Exam Data
 @app.route('/add-exam-data', methods=['POST'])
 def add_exam_data():
@@ -118,10 +118,6 @@ def add_exam_data():
         return jsonify({"error": str(e)}), 500
     finally:
         session.close()
-
-
-
-
 
 
 #! Routes for Adding the Tests
@@ -379,6 +375,18 @@ def check_position():
         return jsonify({'error': str(e), 'is_in_position': "False"}), 500
 
 
+
+
+
+#! Upload AI Routes
+@app.route('/upload-ai-doc',methods=['POST'])
+def upload_ai_doc():
+    data = request.json
+    content = data.get('content')
+    print("This is the content: ", content)
+    response_json = get_gemini_response(content)
+    print("---- this is to send : ",response_json)
+    return jsonify(response_json), 200
 
 
 @app.route('/', methods=['GET'])

@@ -48,7 +48,6 @@ function ExamPage() {
     useEffect(()=>{
         if (!authToken) navigate('/login');
         if (!testDetails) navigate('/home');
-        console.log("sjdjksdkjbskdjfbjksbdfkjsbdjkfbsdkfbskbf")
     },[])
 
     useEffect(() => {
