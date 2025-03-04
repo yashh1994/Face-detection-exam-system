@@ -81,6 +81,7 @@ function ExamPage() {
     useEffect(()=>{
         console.log("Student Monitoring result is :",resultData)
     },[resultData])
+
     const getFrameMatrix = () => {
         const canvas = document.createElement('canvas');
         const video = webcamRef.current.video;
@@ -197,19 +198,26 @@ function ExamPage() {
 
     const calculateScore = () => {
         score = 0;
+        console.log("answers",answers)
+        console.log("Test details questions: ",testDetails.questions)
         testDetails.questions.forEach(question => {
+            console.log("For number: ",question.id,": ",question)
             const userAnswer = answers[question.id];
             const correctOptions = question.options.filter(option => option.isCorrect).map(option => option.text);
-
+            console.log("User answer: ",answers[question.id])
+            console.log("Corrent options: ",correctOptions)
             if (question.answerType === "single") {
                 if (userAnswer === correctOptions[0]) {
                     score++;
+                    console.log("Got the marks ")
                 }
-            } else if (question.answerType === "multi") {
+            } else if (question.answerType === "multiple") {
                 if (JSON.stringify(userAnswer?.sort()) === JSON.stringify(correctOptions.sort())) {
                     score++;
+                    console.log("Got the marks")
                 }
             }
+            
         });
         console.log(`Student scored: ${score} out of ${testDetails.questions.length}`);
     };

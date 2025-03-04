@@ -124,13 +124,6 @@ def add_exam_data():
 
 
 
-
-
-
-
-
-
-
 #! Routes for Adding the Tests
 @app.route('/add-test/<user_id>', methods=['POST'])
 def create_test(user_id):
@@ -384,11 +377,6 @@ def check_position():
     except Exception as e:
         print(f"error is {str(e)}")
         return jsonify({'error': str(e), 'is_in_position': "False"}), 500
-
-
-
-
-
 
 
 

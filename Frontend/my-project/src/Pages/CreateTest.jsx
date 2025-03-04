@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { 
-    Box, Typography, TextField, Button, Paper, Dialog, 
-    DialogTitle, DialogContent, DialogActions, IconButton, 
-    Tooltip, Divider, Grid 
+import {
+    Box, Typography, TextField, Button, Paper, Dialog,
+    DialogTitle, DialogContent, DialogActions, IconButton,
+    Tooltip, Divider, Grid
 } from '@mui/material';
 import QuestionTemplate from './Components/QuestionTemplate';
 import { AddCircle, ContentCopy } from '@mui/icons-material';
@@ -10,7 +10,7 @@ import axios from 'axios';
 import config from '../config';
 import { AuthContext } from '../Auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-
+import mammoth from 'mammoth';
 function CreateTest() {
     const [testInfo, setTestInfo] = useState({
         title: '',
@@ -30,10 +30,12 @@ function CreateTest() {
             navigate('/login');
         }
     }, [authToken, navigate]);
+    
 
     const handleTestInfoChange = (e) => {
         setTestInfo({ ...testInfo, [e.target.id]: e.target.value });
     };
+
 
     const addQuestion = () => {
         setQuestions([
@@ -42,13 +44,16 @@ function CreateTest() {
         ]);
     };
 
+
     const updateQuestion = (id, updatedQuestion) => {
         setQuestions(questions.map(q => (q.id === id ? updatedQuestion : q)));
     };
 
+
     const removeQuestion = (id) => {
         setQuestions(questions.filter(q => q.id !== id));
     };
+
 
     const handleSubmit = async () => {
         if (!testInfo.title || !testInfo.duration || !testInfo.description || !testInfo.startTime || !testInfo.endTime) {
@@ -104,10 +109,40 @@ function CreateTest() {
         }
     };
 
+
     const handleCopyLink = () => {
         navigator.clipboard.writeText(openLink);
         alert("Link copied to clipboard!");
     };
+
+
+    const handleFileUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const arrayBuffer = e.target.result;
+
+            try {
+                const extractedText = await mammoth.extractRawText({ arrayBuffer });
+                console.log("Extracted Text: ",extractedText);
+            } catch (error) {
+                console.error("Error extracting text:", error);
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    };
+
+    const handleUploadDoc = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.pdf,.doc,.docx';
+        input.onchange = handleFileUpload;
+        input.click();
+    };
+
 
     return (
         <Box
@@ -134,14 +169,24 @@ function CreateTest() {
                 <Paper elevation={3} sx={{ p: 4, borderRadius: 2, backgroundColor: '#2d2d2d' }}>
                     <Box display="flex" justifyContent="space-between" mb={3}>
                         <Typography variant="h5" color="primary">Test Information</Typography>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleSubmit}
-                            sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', '&:hover': { backgroundColor: '#1565c0' } }}
-                        >
-                            Create Test
-                        </Button>
+                        <div>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleUploadDoc}
+                                sx={{ marginRight: '10px', fontWeight: 'bold', backgroundColor: '#1976d2', '&:hover': { backgroundColor: '#1565c0' } }}
+                            >
+                                Upload Doc
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleSubmit}
+                                sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', '&:hover': { backgroundColor: '#1565c0' } }}
+                            >
+                                Create Test
+                            </Button>
+                        </div>
                     </Box>
                     <Box display="flex" gap={2} mb={3}>
                         <TextField
@@ -211,52 +256,52 @@ function CreateTest() {
                         }}
                     />
                     <Box display="flex" justifyContent="space-between" gap={4} alignItems="center">
-    <Box display="flex" gap={2} alignItems="center" flex={1}>
-        <Typography variant="body1" color="white" sx={{ minWidth: '120px' }}>Valid Start Time:</Typography>
-        <TextField
-            id="startTime"
-            type="datetime-local"
-            value={testInfo.startTime}
-            onChange={handleTestInfoChange}
-            fullWidth
-            sx={{
-                input: {
-                    color: 'white',
-                    backgroundColor: '#333',
-                    borderRadius: '5px',
-                    '&::placeholder': { color: '#aaa' },
-                },
-                '& .MuiOutlinedInput-root': {
-                    '& fieldset': { borderColor: '#444' },
-                    '&:hover fieldset': { borderColor: '#555' },
-                }
-            }}
-        />
-    </Box>
+                        <Box display="flex" gap={2} alignItems="center" flex={1}>
+                            <Typography variant="body1" color="white" sx={{ minWidth: '120px' }}>Valid Start Time:</Typography>
+                            <TextField
+                                id="startTime"
+                                type="datetime-local"
+                                value={testInfo.startTime}
+                                onChange={handleTestInfoChange}
+                                fullWidth
+                                sx={{
+                                    input: {
+                                        color: 'white',
+                                        backgroundColor: '#333',
+                                        borderRadius: '5px',
+                                        '&::placeholder': { color: '#aaa' },
+                                    },
+                                    '& .MuiOutlinedInput-root': {
+                                        '& fieldset': { borderColor: '#444' },
+                                        '&:hover fieldset': { borderColor: '#555' },
+                                    }
+                                }}
+                            />
+                        </Box>
 
-    <Box display="flex" gap={2} alignItems="center" flex={1}>
-        <Typography variant="body1" color="white" sx={{ minWidth: '120px' }}>Valid End Time:</Typography>
-        <TextField
-            id="endTime"
-            type="datetime-local"
-            value={testInfo.endTime}
-            onChange={handleTestInfoChange}
-            fullWidth
-            sx={{
-                input: {
-                    color: 'white',
-                    backgroundColor: '#333',
-                    borderRadius: '5px',
-                    '&::placeholder': { color: '#aaa' },
-                },
-                '& .MuiOutlinedInput-root': {
-                    '& fieldset': { borderColor: '#444' },
-                    '&:hover fieldset': { borderColor: '#555' },
-                }
-            }}
-        />
-    </Box>
-</Box>
+                        <Box display="flex" gap={2} alignItems="center" flex={1}>
+                            <Typography variant="body1" color="white" sx={{ minWidth: '120px' }}>Valid End Time:</Typography>
+                            <TextField
+                                id="endTime"
+                                type="datetime-local"
+                                value={testInfo.endTime}
+                                onChange={handleTestInfoChange}
+                                fullWidth
+                                sx={{
+                                    input: {
+                                        color: 'white',
+                                        backgroundColor: '#333',
+                                        borderRadius: '5px',
+                                        '&::placeholder': { color: '#aaa' },
+                                    },
+                                    '& .MuiOutlinedInput-root': {
+                                        '& fieldset': { borderColor: '#444' },
+                                        '&:hover fieldset': { borderColor: '#555' },
+                                    }
+                                }}
+                            />
+                        </Box>
+                    </Box>
 
                 </Paper>
 
@@ -312,6 +357,7 @@ function CreateTest() {
             </Box>
         </Box>
     );
+
 }
 
 export default CreateTest;
