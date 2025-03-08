@@ -10,8 +10,8 @@ class ExamData(Base):
     __tablename__ = 'ExamData'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(String, ForeignKey('Users.id'), nullable=False)
-    test_id = Column(String, ForeignKey('Tests.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('Users.id'), nullable=False)
+    test_id = Column(Integer, ForeignKey('Tests.id'), nullable=False)
     data = Column(JSONB, nullable=False)
     score = Column(String, nullable=False)
     start_time = Column(String, nullable=False) 

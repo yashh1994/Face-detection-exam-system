@@ -26,7 +26,7 @@ function CreateTest() {
     const [questions, setQuestions] = useState([]);
     const [openLink, setOpenLink] = useState('');
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [uploadDocButtonLoading, setUploadDocButtonLoading] = useState(true);
+    const [uploadDocButtonLoading, setUploadDocButtonLoading] = useState(false);
     useEffect(() => {
         if (!authToken) {
             navigate('/login');
@@ -128,9 +128,10 @@ function CreateTest() {
 
 
     const handleFileUpload = async (event) => {
-        setUploadDocButtonLoading(true);
         const file = event.target.files[0];
         if (!file) return;
+
+        setUploadDocButtonLoading(true);
 
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -152,10 +153,11 @@ function CreateTest() {
                 }
             } catch (error) {
                 console.error("Error extracting text:", error);
+            }finally{
+                setUploadDocButtonLoading(false);
             }
         };
         reader.readAsArrayBuffer(file);
-        setUploadDocButtonLoading(false);
     };
 
     const handleUploadDoc = () => {
@@ -164,6 +166,7 @@ function CreateTest() {
         input.accept = '.pdf,.doc,.docx';
         input.onchange = handleFileUpload;
         input.click();
+        setUploadDocButtonLoading(false);
     };
 
 
@@ -334,12 +337,12 @@ function CreateTest() {
                 </Paper>
 
                 <Paper elevation={3} sx={{ p: 4, borderRadius: 2, backgroundColor: '#2d2d2d' }}>
-                    <div>
+                    <div className='flex flex-row justify-between'>
                     <Typography variant="h5" color="primary" gutterBottom>
                         Questions
                     </Typography>
                     {uploadDocButtonLoading && (
-                        <Box display="flex" justifyContent="center" mb={2}>
+                            <Box display="flex"  justifyContent="center" mb={2}>
                             <CircularProgress color="primary" />
                         </Box>
                     )}
