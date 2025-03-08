@@ -9,6 +9,12 @@
 
 ---
 
+## 🎥 Demo Video  
+
+[![Watch the Demo](https://img.youtube.com/vi/KN3kY_2IsNM/hqdefault.jpg)](https://www.youtube.com/watch?v=KN3kY_2IsNM)
+
+---
+
 ## 🚀 **About the Project**  
 Revolutionizing online exams with **AI-driven webcam monitoring**, customizable test creation, and real-time behavioral analytics. Ensure academic integrity while offering a seamless experience for both educators and students.
 
@@ -52,10 +58,9 @@ Revolutionizing online exams with **AI-driven webcam monitoring**, customizable 
     ```
 
 ### **Frontend Setup**  
-### **Frontend Setup**  
 1. Navigate to the frontend folder:  
     ```bash
-    cd .\Frontend\my-project\
+    cd ./Frontend/my-project/
     ```
 
 2. Install the required Node.js dependencies:  
@@ -68,22 +73,20 @@ Revolutionizing online exams with **AI-driven webcam monitoring**, customizable 
     npm run dev
     ```
 
+---
 
-## 👨💻 **About Me**  
-<div align="left" style="color: #000080;">
+## 👨‍💻 **About Me**  
 
-🔭 **Who Am I?**  
+### 🔭 **Who Am I?**  
 Hi! I'm **Yash Fadadu**, a full-stack developer with a passion for bridging AI innovation with practical applications. I thrive on building systems that solve real-world challenges, especially in education and productivity tech.  
 
-🚀 **Skills & Interests**  
+### 🚀 **Skills & Interests**  
 - 🔗 **Tech Stack**: React, Python, OpenCV, Flask, PostgreSQL  
 - 🤖 **Focus**: AI-integrated solutions, scalable backend systems, and intuitive UI/UX  
 - 🌱 **Learning**: Always exploring computer vision and ethical AI practices  
 
-📬 **Get in Touch**  
+### 📬 **Get in Touch**  
 Let's collaborate or chat about tech!  
-- 📧 **Email**: [fadaduyash1994@gmail.com](fadaduyash1994@gmail.com)  
-- 💼 **LinkedIn**: [Yash - LinkdeIn](https://www.linkedin.com/in/yash-fadadu-aba61327a)  
-- 🐙 **GitHub**: [Yash - Github](https://github.com/yashh1994)  
-
-</div>
+- 📧 **Email**: [fadaduyash1994@gmail.com](mailto:fadaduyash1994@gmail.com)  
+- 💼 **LinkedIn**: [Yash - LinkedIn](https://www.linkedin.com/in/yash-fadadu-aba61327a)  
+- 🐙 **GitHub**: [Yash - GitHub](https://github.com/yashh1994)  
