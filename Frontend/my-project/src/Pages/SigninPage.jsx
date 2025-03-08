@@ -22,6 +22,7 @@ const SignIn = () => {
 
   const checkForLogin = async () => {
     try {
+      console.log("This is the url: ", `${config.apiUrl}/login`);
       const response = await fetch(`${config.apiUrl}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
