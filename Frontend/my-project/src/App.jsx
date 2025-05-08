@@ -10,6 +10,7 @@ import PrivateRoute from './Auth/PrivateRoute'; // Import the PrivateRoute compo
 import SignIn from './Pages/SigninPage';
 import ExamPage from './Pages/ExamPage';
 import TestDetailsPage from './Pages/TestDetails';
+import LandingPage from './Pages/LandingPage';
 
 const AppContent = () => {
   const location = useLocation();
@@ -22,7 +23,7 @@ const AppContent = () => {
       <div className={location.pathname !== '/login' && location.pathname !== "/exam" ? "mt-16" : ""}> {/* Add margin-top to push content below the header */}
         <Routes>
           <Route path="/home" element={<Home />} />
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<SignIn />} />
           <Route path="/analysis" element={<AnalysisPage />} />
           <Route path="/analysis/:open_link" element={<TestDetailsPage />} />

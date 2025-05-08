@@ -46,6 +46,7 @@ const Home = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [testToDelete, setTestToDelete] = useState(null); // Store the test to delete
   const [isGivenTest, setIsGivenTest] = useState(false);
+  
   useEffect(() => {
     if (!authToken) {
       navigate('/login');
