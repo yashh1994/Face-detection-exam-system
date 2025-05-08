@@ -17,7 +17,7 @@ const AppContent = () => {
 
   return (
     <div className='relative flex flex-col min-h-screen'>
-      {location.pathname !== '/login' && location.pathname !== "/exam" && (
+      {location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== "/exam" && (
         <div className="fixed top-0 right-0 left-0 z-10"><Header /></div>
       )}
       <div className={location.pathname !== '/login' && location.pathname !== "/exam" ? "mt-16" : ""}> {/* Add margin-top to push content below the header */}

@@ -33,7 +33,7 @@ const LandingPage = () => {
                     borderRadius: '5px',
                     cursor: 'pointer'
                 }}
-                onClick={() => navigate('/hom')}
+                onClick={() => navigate('/home')}
             >
                 Go to /hom
             </button>
