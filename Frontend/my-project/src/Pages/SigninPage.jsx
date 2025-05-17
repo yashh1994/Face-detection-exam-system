@@ -196,9 +196,49 @@ const SignIn = () => {
           </div>
         </div>
       )}
-      <div className="w-1/2 bg-cover bg-center rounded-lg shadow-lg" style={{ backgroundImage: 'url(https://imgs.search.brave.com/k4sxOtPxdWgj1pIa12sDgQNkhL_L6Xd4FkBxZBWswas/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9hcnR3/b3JrLndhbGxhcnRw/cmludHMuY29tL21l/ZGlhL2NhdGFsb2cv/Y2F0ZWdvcnkvd2Fs/bC1hcnQtcHJpbnRz/LWFuaW1hbC1hcnQt/MS5qcGc)' }} />
+      <QuoteDisplay />
     </div>
   );
 };
 
 export default SignIn;
+
+
+
+
+const quotes = [
+  "“Talk is cheap. Show me the code.” – Linus Torvalds",
+  "“Programs must be written for people to read.” – Harold Abelson",
+  "“First, solve the problem. Then, write the code.” – John Johnson",
+  "“Code is like humor. When you have to explain it, it’s bad.” – Cory House",
+  "“Simplicity is the soul of efficiency.” – Austin Freeman",
+];
+
+const QuoteDisplay = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % quotes.length);
+        setFade(true);
+      }, 500);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="w-1/2 flex items-center justify-center bg-gray-800 rounded-lg shadow-lg p-12">
+      <div
+        className={`text-white text-2xl font-semibold text-center transition-opacity duration-500 ${
+          fade ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        {quotes[currentIndex]}
+      </div>
+    </div>
+  );
+};
