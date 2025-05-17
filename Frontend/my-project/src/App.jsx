@@ -31,7 +31,7 @@ const AppContent = () => {
       <div className={location.pathname !== '/login' && location.pathname !== "/exam" ? "mt-16" : ""}>
         <Routes>
           <Route path="/home" element={<Home />} />
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<SignIn />} />
           <Route path="/analysis" element={<AnalysisPage />} />
           <Route path="/analysis/:open_link" element={<TestDetailsPage />} />
