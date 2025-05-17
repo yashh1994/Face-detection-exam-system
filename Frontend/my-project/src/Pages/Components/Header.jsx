@@ -17,7 +17,7 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    logout(); // Call logout function from context
+    logout(); 
     handleMenuClose();
   };
 

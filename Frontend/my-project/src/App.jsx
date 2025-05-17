@@ -6,21 +6,29 @@ import AnalysisPage from './Pages/AnalysisPage';
 import About from './Pages/AboutPage';
 import Help from './Pages/HelpPage';
 import CreateTest from './Pages/CreateTest';
-import PrivateRoute from './Auth/PrivateRoute'; // Import the PrivateRoute component
+import PrivateRoute from './Auth/PrivateRoute';
 import SignIn from './Pages/SigninPage';
 import ExamPage from './Pages/ExamPage';
 import TestDetailsPage from './Pages/TestDetails';
 import LandingPage from './Pages/LandingPage';
+
+// Simple 404 Page component
+const NotFoundPage = () => (
+  <div className="flex flex-col items-center justify-center h-screen">
+    <h1 className="text-4xl font-bold mb-4">404</h1>
+    <p className="text-lg">Page Not Found</p>
+  </div>
+);
 
 const AppContent = () => {
   const location = useLocation();
 
   return (
     <div className='relative flex flex-col min-h-screen'>
-      {location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== "/exam" && (
+      {location.pathname !== '/login' && location.pathname !== '/' && location.pathname !== "/exam" && (
         <div className="fixed top-0 right-0 left-0 z-10"><Header /></div>
       )}
-      <div className={location.pathname !== '/login' && location.pathname !== "/exam" ? "mt-16" : ""}> {/* Add margin-top to push content below the header */}
+      <div className={location.pathname !== '/login' && location.pathname !== "/exam" ? "mt-16" : ""}>
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/" element={<LandingPage />} />
@@ -31,6 +39,7 @@ const AppContent = () => {
           <Route path="/about" element={<About />} />
           <Route path="/help" element={<Help />} />
           <Route path="/create-test" element={<CreateTest />} />
+          <Route path="*" element={<NotFoundPage />} /> {/* 404 route */}
         </Routes>
       </div>
     </div>
