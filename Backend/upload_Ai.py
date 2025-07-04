@@ -43,7 +43,7 @@ prompt = [
 ]
 
 def get_gemini_response(question):
-    model = genai.GenerativeModel('gemini-1.5-pro-001')
+    model = genai.GenerativeModel('gemini-1.5-flash')
     response = model.generate_content([prompt[0], question])
     # print("This is the response from the model: ", response._result.candidates[0].content.parts[0].text)
     th = response.text
