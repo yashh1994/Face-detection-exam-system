@@ -23,7 +23,7 @@ Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
 
-
+ 
 # Generate a key (you should save this securely to use for both encryption and decryption)
 # Use this line only once to generate a key, then use the saved key below for actual encoding/decoding
 # key = Fernet.generate_key()
